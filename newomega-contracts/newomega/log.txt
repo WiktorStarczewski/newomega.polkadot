@@ -1,0 +1,657 @@
+    Updating crates.io index
+   Compiling newomega v0.1.0 (/private/var/folders/5m/qltwmc4s0tg2ztgx8zhvz8s80000gn/T/cargo-contract_kZ4N13)
+warning: value assigned to `rhsHasTarget` is never read
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:265:25
+    |
+265 |                     let mut rhsHasTarget: bool = false;
+    |                         ^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_assignments)]` on by default
+    = help: maybe it is overwritten before being read?
+
+warning: value assigned to `rhsDamage` is never read
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:269:25
+    |
+269 |                     let mut rhsDamage: u32 = 0;
+    |                         ^^^^^^^^^^^^^
+    |
+    = help: maybe it is overwritten before being read?
+
+warning: value assigned to `rhsTarget` is never read
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:271:25
+    |
+271 |                     let mut rhsTarget: u8 = 0;
+    |                         ^^^^^^^^^^^^^
+    |
+    = help: maybe it is overwritten before being read?
+
+warning: value assigned to `rhsDeltaMove` is never read
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:273:25
+    |
+273 |                     let mut rhsDeltaMove: u8 = 0;
+    |                         ^^^^^^^^^^^^^^^^
+    |
+    = help: maybe it is overwritten before being read?
+
+warning: variable does not need to be mutable
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:238:17
+    |
+238 |             let mut round: usize = 0;
+    |                 ----^^^^^
+    |                 |
+    |                 help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` on by default
+
+warning: constant is never used: `BOARD_SIZE`
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:11:5
+   |
+11 |     pub const BOARD_SIZE: i8 = 15;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: module `GameEngineLibrary` should have a snake case name
+ --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:7:5
+  |
+7 | mod GameEngineLibrary {
+  |     ^^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `game_engine_library`
+  |
+  = note: `#[warn(non_snake_case)]` on by default
+
+warning: variable `logMoves` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:216:40
+    |
+216 |         pub fn fight(&self, seed: u64, logMoves: bool, Ships: [Ship; MAX_SHIPS],
+    |                                        ^^^^^^^^ help: convert the identifier to snake case: `log_moves`
+
+warning: variable `Ships` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:216:56
+    |
+216 |         pub fn fight(&self, seed: u64, logMoves: bool, Ships: [Ship; MAX_SHIPS],
+    |                                                        ^^^^^ help: convert the identifier to snake case (notice the capitalization): `ships`
+
+warning: variable `selectionLhs` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:217:13
+    |
+217 |             selectionLhs: [u8; MAX_SHIPS], selectionRhs: [u8; MAX_SHIPS],
+    |             ^^^^^^^^^^^^ help: convert the identifier to snake case: `selection_lhs`
+
+warning: variable `selectionRhs` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:217:44
+    |
+217 |             selectionLhs: [u8; MAX_SHIPS], selectionRhs: [u8; MAX_SHIPS],
+    |                                            ^^^^^^^^^^^^ help: convert the identifier to snake case: `selection_rhs`
+
+warning: variable `variantsLhs` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:218:13
+    |
+218 |             variantsLhs: [u8; MAX_SHIPS], variantsRhs: [u8; MAX_SHIPS],
+    |             ^^^^^^^^^^^ help: convert the identifier to snake case: `variants_lhs`
+
+warning: variable `variantsRhs` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:218:43
+    |
+218 |             variantsLhs: [u8; MAX_SHIPS], variantsRhs: [u8; MAX_SHIPS],
+    |                                           ^^^^^^^^^^^ help: convert the identifier to snake case: `variants_rhs`
+
+warning: variable `commanderLhs` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:219:13
+    |
+219 |             commanderLhs: u8, commanderRhs: u8) -> (FightResult, Option<[Move; MAX_ROUNDS * MAX_SHIPS]>,
+    |             ^^^^^^^^^^^^ help: convert the identifier to snake case: `commander_lhs`
+
+warning: variable `commanderRhs` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:219:31
+    |
+219 |             commanderLhs: u8, commanderRhs: u8) -> (FightResult, Option<[Move; MAX_ROUNDS * MAX_SHIPS]>,
+    |                               ^^^^^^^^^^^^ help: convert the identifier to snake case: `commander_rhs`
+
+warning: variable `shipPositionsLhs` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:222:21
+    |
+222 |             let mut shipPositionsLhs: [i8; MAX_SHIPS] = [10, 11, 12, 13];
+    |                     ^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `ship_positions_lhs`
+
+warning: variable `shipPositionsRhs` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:223:21
+    |
+223 |             let mut shipPositionsRhs: [i8; MAX_SHIPS] = [-10, -11, -12, -13];
+    |                     ^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `ship_positions_rhs`
+
+warning: variable `shipHpsLhs` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:224:21
+    |
+224 |             let mut shipHpsLhs: [i32; MAX_SHIPS] = [0; MAX_SHIPS];
+    |                     ^^^^^^^^^^ help: convert the identifier to snake case: `ship_hps_lhs`
+
+warning: variable `shipHpsRhs` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:225:21
+    |
+225 |             let mut shipHpsRhs: [i32; MAX_SHIPS] = [0; MAX_SHIPS];
+    |                     ^^^^^^^^^^ help: convert the identifier to snake case: `ship_hps_rhs`
+
+warning: variable `variablesLhs` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:226:21
+    |
+226 |             let mut variablesLhs: [u16; MAX_SHIPS] = [0; MAX_SHIPS];
+    |                     ^^^^^^^^^^^^ help: convert the identifier to snake case: `variables_lhs`
+
+warning: variable `variablesRhs` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:227:21
+    |
+227 |             let mut variablesRhs: [u16; MAX_SHIPS] = [0; MAX_SHIPS];
+    |                     ^^^^^^^^^^^^ help: convert the identifier to snake case: `variables_rhs`
+
+warning: variable `lhsMoves` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:236:21
+    |
+236 |             let mut lhsMoves: Option<[Move; MAX_ROUNDS * MAX_SHIPS]> = None;
+    |                     ^^^^^^^^ help: convert the identifier to snake case: `lhs_moves`
+
+warning: variable `rhsMoves` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:237:21
+    |
+237 |             let mut rhsMoves: Option<[Move; MAX_ROUNDS * MAX_SHIPS]> = None;
+    |                     ^^^^^^^^ help: convert the identifier to snake case: `rhs_moves`
+
+warning: variable `emptyMove` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:240:17
+    |
+240 |             let emptyMove: Move = Move {
+    |                 ^^^^^^^^^ help: convert the identifier to snake case: `empty_move`
+
+warning: variable `roundU8` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:260:21
+    |
+260 |                 let roundU8: u8 = round as u8;
+    |                     ^^^^^^^ help: convert the identifier to snake case: `round_u8`
+
+warning: variable `currentShip` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:262:21
+    |
+262 |                 for currentShip in 0..MAX_SHIPS {
+    |                     ^^^^^^^^^^^ help: convert the identifier to snake case: `current_ship`
+
+warning: variable `currentShipU8` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:263:25
+    |
+263 |                     let currentShipU8: u8 = currentShip as u8;
+    |                         ^^^^^^^^^^^^^ help: convert the identifier to snake case: `current_ship_u8`
+
+warning: variable `lhsHasTarget` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:264:29
+    |
+264 |                     let mut lhsHasTarget: bool = false;
+    |                             ^^^^^^^^^^^^ help: convert the identifier to snake case: `lhs_has_target`
+
+warning: variable `rhsHasTarget` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:265:29
+    |
+265 |                     let mut rhsHasTarget: bool = false;
+    |                             ^^^^^^^^^^^^ help: convert the identifier to snake case: `rhs_has_target`
+
+warning: variable `lhsDeadShip` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:266:25
+    |
+266 |                     let lhsDeadShip: bool = shipHpsLhs[currentShip] <= 0;
+    |                         ^^^^^^^^^^^ help: convert the identifier to snake case: `lhs_dead_ship`
+
+warning: variable `rhsDeadShip` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:267:25
+    |
+267 |                     let rhsDeadShip: bool = shipHpsRhs[currentShip] <= 0;
+    |                         ^^^^^^^^^^^ help: convert the identifier to snake case: `rhs_dead_ship`
+
+warning: variable `lhsDamage` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:268:29
+    |
+268 |                     let mut lhsDamage: u32 = 0;
+    |                             ^^^^^^^^^ help: convert the identifier to snake case: `lhs_damage`
+
+warning: variable `rhsDamage` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:269:29
+    |
+269 |                     let mut rhsDamage: u32 = 0;
+    |                             ^^^^^^^^^ help: convert the identifier to snake case: `rhs_damage`
+
+warning: variable `lhsTarget` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:270:29
+    |
+270 |                     let mut lhsTarget: u8 = 0;
+    |                             ^^^^^^^^^ help: convert the identifier to snake case: `lhs_target`
+
+warning: variable `rhsTarget` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:271:29
+    |
+271 |                     let mut rhsTarget: u8 = 0;
+    |                             ^^^^^^^^^ help: convert the identifier to snake case: `rhs_target`
+
+warning: variable `lhsDeltaMove` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:272:29
+    |
+272 |                     let mut lhsDeltaMove: u8 = 0;
+    |                             ^^^^^^^^^^^^ help: convert the identifier to snake case: `lhs_delta_move`
+
+warning: variable `rhsDeltaMove` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:273:29
+    |
+273 |                     let mut rhsDeltaMove: u8 = 0;
+    |                             ^^^^^^^^^^^^ help: convert the identifier to snake case: `rhs_delta_move`
+
+warning: variable `lhsMoveNumber` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:274:29
+    |
+274 |                     let mut lhsMoveNumber: u16 = 0;
+    |                             ^^^^^^^^^^^^^ help: convert the identifier to snake case: `lhs_move_number`
+
+warning: variable `rhsMoveNumber` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:275:29
+    |
+275 |                     let mut rhsMoveNumber: u16 = 0;
+    |                             ^^^^^^^^^^^^^ help: convert the identifier to snake case: `rhs_move_number`
+
+warning: variable `shipsLostLhs` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:340:21
+    |
+340 |             let mut shipsLostLhs: [u8; MAX_SHIPS] = [0; MAX_SHIPS];
+    |                     ^^^^^^^^^^^^ help: convert the identifier to snake case: `ships_lost_lhs`
+
+warning: variable `shipsLostRhs` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:341:21
+    |
+341 |             let mut shipsLostRhs: [u8; MAX_SHIPS] = [0; MAX_SHIPS];
+    |                     ^^^^^^^^^^^^ help: convert the identifier to snake case: `ships_lost_rhs`
+
+warning: variable `safeHpLhs` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:343:21
+    |
+343 |                 let safeHpLhs: u32 = self.max(shipHpsLhs[i], 0) as u32;
+    |                     ^^^^^^^^^ help: convert the identifier to snake case: `safe_hp_lhs`
+
+warning: variable `safeHpRhs` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:344:21
+    |
+344 |                 let safeHpRhs: u32 = self.max(shipHpsRhs[i], 0) as u32;
+    |                     ^^^^^^^^^ help: convert the identifier to snake case: `safe_hp_rhs`
+
+warning: variable `totalRhsShips` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:349:21
+    |
+349 |             let mut totalRhsShips: u16 = 0;
+    |                     ^^^^^^^^^^^^^ help: convert the identifier to snake case: `total_rhs_ships`
+
+warning: method `isDead` should have a snake case name
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:97:12
+   |
+97 |         fn isDead(&self, shipHps: [i32; MAX_SHIPS]) -> bool {
+   |            ^^^^^^ help: convert the identifier to snake case: `is_dead`
+
+warning: variable `shipHps` should have a snake case name
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:97:26
+   |
+97 |         fn isDead(&self, shipHps: [i32; MAX_SHIPS]) -> bool {
+   |                          ^^^^^^^ help: convert the identifier to snake case: `ship_hps`
+
+warning: variable `isTargetDead` should have a snake case name
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:98:21
+   |
+98 |             let mut isTargetDead: bool = true;
+   |                     ^^^^^^^^^^^^ help: convert the identifier to snake case: `is_target_dead`
+
+warning: method `getDefenceStat` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:109:12
+    |
+109 |         fn getDefenceStat(&self, stat: u16, variant: u8) -> u16 {
+    |            ^^^^^^^^^^^^^^ help: convert the identifier to snake case: `get_defence_stat`
+
+warning: variable `finalStat` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:110:21
+    |
+110 |             let mut finalStat: u16 = 0;
+    |                     ^^^^^^^^^ help: convert the identifier to snake case: `final_stat`
+
+warning: method `getAttackStat` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:122:12
+    |
+122 |         fn getAttackStat(&self, stat: u16, variant: u8) -> u16 {
+    |            ^^^^^^^^^^^^^ help: convert the identifier to snake case: `get_attack_stat`
+
+warning: variable `finalStat` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:123:21
+    |
+123 |             let mut finalStat: u16 = 0;
+    |                     ^^^^^^^^^ help: convert the identifier to snake case: `final_stat`
+
+warning: method `getTarget` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:135:12
+    |
+135 |         fn getTarget(&self, Ships: &[Ship; MAX_SHIPS], currentShip: u8,
+    |            ^^^^^^^^^ help: convert the identifier to snake case: `get_target`
+
+warning: variable `Ships` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:135:29
+    |
+135 |         fn getTarget(&self, Ships: &[Ship; MAX_SHIPS], currentShip: u8,
+    |                             ^^^^^ help: convert the identifier to snake case (notice the capitalization): `ships`
+
+warning: variable `currentShip` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:135:56
+    |
+135 |         fn getTarget(&self, Ships: &[Ship; MAX_SHIPS], currentShip: u8,
+    |                                                        ^^^^^^^^^^^ help: convert the identifier to snake case: `current_ship`
+
+warning: variable `shipPositionsOwn` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:136:13
+    |
+136 |             shipPositionsOwn: [i8; MAX_SHIPS], shipPositionsEnemy: [i8; MAX_SHIPS],
+    |             ^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `ship_positions_own`
+
+warning: variable `shipPositionsEnemy` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:136:48
+    |
+136 |             shipPositionsOwn: [i8; MAX_SHIPS], shipPositionsEnemy: [i8; MAX_SHIPS],
+    |                                                ^^^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `ship_positions_enemy`
+
+warning: variable `shipHpsEnemy` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:137:13
+    |
+137 |             shipHpsEnemy: [i32; MAX_SHIPS]) -> (bool, u8, u8) {
+    |             ^^^^^^^^^^^^ help: convert the identifier to snake case: `ship_hps_enemy`
+
+warning: variable `currentShipUsize` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:139:17
+    |
+139 |             let currentShipUsize:usize = currentShip as usize;
+    |                 ^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `current_ship_usize`
+
+warning: variable `proposedMove` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:141:21
+    |
+141 |             let mut proposedMove:u8 = 0;
+    |                     ^^^^^^^^^^^^ help: convert the identifier to snake case: `proposed_move`
+
+warning: variable `minDistanceIndex` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:142:21
+    |
+142 |             let mut minDistanceIndex:u8 = MAX_SHIPS as u8;
+    |                     ^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `min_distance_index`
+
+warning: variable `enemyShip` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:144:17
+    |
+144 |             for enemyShip in (0..MAX_SHIPS as u8).rev() {
+    |                 ^^^^^^^^^ help: convert the identifier to snake case: `enemy_ship`
+
+warning: variable `enemyShipUsize` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:145:21
+    |
+145 |                 let enemyShipUsize:usize = enemyShip as usize;
+    |                     ^^^^^^^^^^^^^^ help: convert the identifier to snake case: `enemy_ship_usize`
+
+warning: method `calculateDamage` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:165:12
+    |
+165 |         fn calculateDamage(&self, variables: [u16; MAX_SHIPS], variantsSource: [u8; MAX_SHIPS],
+    |            ^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `calculate_damage`
+
+warning: variable `variantsSource` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:165:64
+    |
+165 |         fn calculateDamage(&self, variables: [u16; MAX_SHIPS], variantsSource: [u8; MAX_SHIPS],
+    |                                                                ^^^^^^^^^^^^^^ help: convert the identifier to snake case: `variants_source`
+
+warning: variable `variantsTarget` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:166:13
+    |
+166 |             variantsTarget: [u8; MAX_SHIPS], Ships: &[Ship; MAX_SHIPS], source: u8,
+    |             ^^^^^^^^^^^^^^ help: convert the identifier to snake case: `variants_target`
+
+warning: variable `Ships` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:166:46
+    |
+166 |             variantsTarget: [u8; MAX_SHIPS], Ships: &[Ship; MAX_SHIPS], source: u8,
+    |                                              ^^^^^ help: convert the identifier to snake case (notice the capitalization): `ships`
+
+warning: variable `sourceHp` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:167:25
+    |
+167 |             target: u8, sourceHp: u32) -> u32 {
+    |                         ^^^^^^^^ help: convert the identifier to snake case: `source_hp`
+
+warning: variable `sourceUsize` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:169:17
+    |
+169 |             let sourceUsize: usize = source as usize;
+    |                 ^^^^^^^^^^^ help: convert the identifier to snake case: `source_usize`
+
+warning: variable `targetUsize` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:170:17
+    |
+170 |             let targetUsize: usize = target as usize;
+    |                 ^^^^^^^^^^^ help: convert the identifier to snake case: `target_usize`
+
+warning: variable `sourceShipsCount` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:173:17
+    |
+173 |             let sourceShipsCount: u16 = (sourceHp / Ships[sourceUsize].hp as u32) as u16 + 1;
+    |                 ^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `source_ships_count`
+
+warning: variable `capDamage` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:174:17
+    |
+174 |             let capDamage: u32 = (sourceShipsCount as u32) * (Ships[targetUsize].hp as u32);
+    |                 ^^^^^^^^^ help: convert the identifier to snake case: `cap_damage`
+
+warning: method `logShoot` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:187:12
+    |
+187 |         fn logShoot(&self, moveNumber: &mut u16, round: u8, moves: &mut [Move; MAX_ROUNDS * MAX_SHIPS],
+    |            ^^^^^^^^ help: convert the identifier to snake case: `log_shoot`
+
+warning: variable `moveNumber` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:187:28
+    |
+187 |         fn logShoot(&self, moveNumber: &mut u16, round: u8, moves: &mut [Move; MAX_ROUNDS * MAX_SHIPS],
+    |                            ^^^^^^^^^^ help: convert the identifier to snake case: `move_number`
+
+warning: method `logMove` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:201:12
+    |
+201 |         fn logMove(&self, moveNumber: &mut u16, round: u8, moves: &mut [Move; MAX_ROUNDS * MAX_SHIPS],
+    |            ^^^^^^^ help: convert the identifier to snake case: `log_move`
+
+warning: variable `moveNumber` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:201:27
+    |
+201 |         fn logMove(&self, moveNumber: &mut u16, round: u8, moves: &mut [Move; MAX_ROUNDS * MAX_SHIPS],
+    |                           ^^^^^^^^^^ help: convert the identifier to snake case: `move_number`
+
+warning: variable `targetPosition` should have a snake case name
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:202:25
+    |
+202 |             source: u8, targetPosition: i8) {
+    |                         ^^^^^^^^^^^^^^ help: convert the identifier to snake case: `target_position`
+
+warning: structure field `moveType` should have a snake case name
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:20:9
+   |
+20 |         moveType: u8,
+   |         ^^^^^^^^ help: convert the identifier to snake case: `move_type`
+
+warning: structure field `targetPosition` should have a snake case name
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:24:9
+   |
+24 |         targetPosition: i8,
+   |         ^^^^^^^^^^^^^^ help: convert the identifier to snake case: `target_position`
+
+warning: structure field `selectionLhs` should have a snake case name
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:52:9
+   |
+52 |         selectionLhs: [u8; MAX_SHIPS],
+   |         ^^^^^^^^^^^^ help: convert the identifier to snake case: `selection_lhs`
+
+warning: structure field `selectionRhs` should have a snake case name
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:53:9
+   |
+53 |         selectionRhs: [u8; MAX_SHIPS],
+   |         ^^^^^^^^^^^^ help: convert the identifier to snake case: `selection_rhs`
+
+warning: structure field `variantsLhs` should have a snake case name
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:54:9
+   |
+54 |         variantsLhs: [u8; MAX_SHIPS],
+   |         ^^^^^^^^^^^ help: convert the identifier to snake case: `variants_lhs`
+
+warning: structure field `variantsRhs` should have a snake case name
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:55:9
+   |
+55 |         variantsRhs: [u8; MAX_SHIPS],
+   |         ^^^^^^^^^^^ help: convert the identifier to snake case: `variants_rhs`
+
+warning: structure field `commanderLhs` should have a snake case name
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:56:9
+   |
+56 |         commanderLhs: u8,
+   |         ^^^^^^^^^^^^ help: convert the identifier to snake case: `commander_lhs`
+
+warning: structure field `commanderRhs` should have a snake case name
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:57:9
+   |
+57 |         commanderRhs: u8,
+   |         ^^^^^^^^^^^^ help: convert the identifier to snake case: `commander_rhs`
+
+warning: structure field `lhsDead` should have a snake case name
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:58:9
+   |
+58 |         lhsDead: bool,
+   |         ^^^^^^^ help: convert the identifier to snake case: `lhs_dead`
+
+warning: structure field `rhsDead` should have a snake case name
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:59:9
+   |
+59 |         rhsDead: bool,
+   |         ^^^^^^^ help: convert the identifier to snake case: `rhs_dead`
+
+warning: structure field `shipsLostLhs` should have a snake case name
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:62:9
+   |
+62 |         shipsLostLhs: [u8; MAX_SHIPS],
+   |         ^^^^^^^^^^^^ help: convert the identifier to snake case: `ships_lost_lhs`
+
+warning: structure field `shipsLostRhs` should have a snake case name
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:63:9
+   |
+63 |         shipsLostRhs: [u8; MAX_SHIPS]
+   |         ^^^^^^^^^^^^ help: convert the identifier to snake case: `ships_lost_rhs`
+
+warning: 88 warnings emitted
+
+    Finished release [optimized] target(s) in 2.55s
+    Updating crates.io index
+   Compiling newomega v0.1.0 (/var/folders/5m/qltwmc4s0tg2ztgx8zhvz8s80000gn/T/cargo-contract_IhwSpZ)
+error: cannot find derive macro `Serialize` in this scope
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:18:40
+   |
+18 |     #[cfg_attr(feature = "std", derive(Serialize, Deserialize, Debug))]
+   |                                        ^^^^^^^^^
+
+error: cannot find derive macro `Deserialize` in this scope
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:18:51
+   |
+18 |     #[cfg_attr(feature = "std", derive(Serialize, Deserialize, Debug))]
+   |                                                   ^^^^^^^^^^^
+
+error: cannot find derive macro `Serialize` in this scope
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:30:40
+   |
+30 |     #[cfg_attr(feature = "std", derive(Serialize, Deserialize, Debug))]
+   |                                        ^^^^^^^^^
+
+error: cannot find derive macro `Deserialize` in this scope
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:30:51
+   |
+30 |     #[cfg_attr(feature = "std", derive(Serialize, Deserialize, Debug))]
+   |                                                   ^^^^^^^^^^^
+
+error: cannot find derive macro `Serialize` in this scope
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:38:40
+   |
+38 |     #[cfg_attr(feature = "std", derive(Serialize, Deserialize, Debug))]
+   |                                        ^^^^^^^^^
+
+error: cannot find derive macro `Deserialize` in this scope
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:38:51
+   |
+38 |     #[cfg_attr(feature = "std", derive(Serialize, Deserialize, Debug))]
+   |                                                   ^^^^^^^^^^^
+
+error: cannot find derive macro `Serialize` in this scope
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:50:40
+   |
+50 |     #[cfg_attr(feature = "std", derive(Serialize, Deserialize, Debug))]
+   |                                        ^^^^^^^^^
+
+error: cannot find derive macro `Deserialize` in this scope
+  --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:50:51
+   |
+50 |     #[cfg_attr(feature = "std", derive(Serialize, Deserialize, Debug))]
+   |                                                   ^^^^^^^^^^^
+
+error[E0277]: the trait bound `Ship: scale_info::TypeInfo` is not satisfied
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:6:1
+    |
+6   | #[ink::contract]
+    | ^^^^^^^^^^^^^^^^ the trait `scale_info::TypeInfo` is not implemented for `Ship`
+    | 
+   ::: /Users/wiktor/.cargo/registry/src/github.com-1ecc6299db9ec823/ink_metadata-3.0.0-rc2/src/specs.rs:868:12
+    |
+868 |         T: TypeInfo + 'static,
+    |            -------- required by this bound in `TypeSpec::new`
+    |
+    = note: required because of the requirements on the impl of `scale_info::TypeInfo` for `[Ship; 4]`
+    = note: this error originates in an attribute macro (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `FightResult: scale_info::TypeInfo` is not satisfied
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:6:1
+    |
+6   | #[ink::contract]
+    | ^^^^^^^^^^^^^^^^ the trait `scale_info::TypeInfo` is not implemented for `FightResult`
+    | 
+   ::: /Users/wiktor/.cargo/registry/src/github.com-1ecc6299db9ec823/ink_metadata-3.0.0-rc2/src/specs.rs:868:12
+    |
+868 |         T: TypeInfo + 'static,
+    |            -------- required by this bound in `TypeSpec::new`
+    |
+    = note: required because of the requirements on the impl of `scale_info::TypeInfo` for `(FightResult, Option<[Move; 120]>, Option<[Move; 120]>)`
+    = note: this error originates in an attribute macro (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `[Move; 120]: scale_info::TypeInfo` is not satisfied
+   --> /Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/newomega.rs:6:1
+    |
+6   | #[ink::contract]
+    | ^^^^^^^^^^^^^^^^ the trait `scale_info::TypeInfo` is not implemented for `[Move; 120]`
+    | 
+   ::: /Users/wiktor/.cargo/registry/src/github.com-1ecc6299db9ec823/ink_metadata-3.0.0-rc2/src/specs.rs:868:12
+    |
+868 |         T: TypeInfo + 'static,
+    |            -------- required by this bound in `TypeSpec::new`
+    |
+    = help: the following implementations were found:
+              <[T; 10] as scale_info::TypeInfo>
+              <[T; 11] as scale_info::TypeInfo>
+              <[T; 128] as scale_info::TypeInfo>
+              <[T; 12] as scale_info::TypeInfo>
+            and 40 others
+    = note: required because of the requirements on the impl of `scale_info::TypeInfo` for `Option<[Move; 120]>`
+    = note: 1 redundant requirements hidden
+    = note: required because of the requirements on the impl of `scale_info::TypeInfo` for `(FightResult, Option<[Move; 120]>, Option<[Move; 120]>)`
+    = note: this error originates in an attribute macro (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: aborting due to 11 previous errors
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `newomega`
+
+To learn more, run the command again with --verbose.
+[1;91mERROR:[0m [91m`"/Users/wiktor/.rustup/toolchains/nightly-x86_64-apple-darwin/bin/cargo" "run" "--package" "metadata-gen" "--manifest-path=/var/folders/5m/qltwmc4s0tg2ztgx8zhvz8s80000gn/T/cargo-contract_IhwSpZ/Cargo.toml" "--target-dir=/Users/wiktor/projects/newomega-substrate/newomega-contracts/newomega/target" "--release"` failed with exit code: Some(101)[0m
