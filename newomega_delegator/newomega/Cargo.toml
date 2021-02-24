@@ -1,7 +1,7 @@
 [package]
 name = "newomega"
-version = "0.1.0"
-authors = ["celrisen celrisen@gmail.com"]
+version = "1.0.0"
+authors = ["Celrisen <celrisen@gmail.com>"]
 edition = "2018"
 
 [dependencies]
@@ -20,8 +20,9 @@ scale-info = { version = "0.4.1", default-features = false, features = ["derive"
 name = "newomega"
 path = "newomega.rs"
 crate-type = [
-	# Used for normal contract Wasm blobs.
-	"cdylib",
+    # Used for normal contract Wasm blobs.
+    "cdylib",
+    "rlib",
 ]
 
 [features]
