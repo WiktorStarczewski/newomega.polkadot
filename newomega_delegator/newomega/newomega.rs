@@ -14,22 +14,16 @@ mod newomega {
     pub struct NewOmega {}
 
     pub const BOARD_SIZE: i8 = 15;
-    pub const MAX_ROUNDS: usize = 50;
+    pub const MAX_ROUNDS: usize = 25;
     pub const MAX_SHIPS: usize = 4;
     pub const FIT_TO_STAT: u16 = 20;
 
     use ink_prelude::vec::Vec;
     use ink_storage::{
-        collections::{
-            HashMap as StorageHashMap,
-            Stash as StorageStash,
-            Vec as StorageVec,
-        },
         traits::{
             PackedLayout,
             SpreadLayout,
         },
-        Lazy,
     };
     use scale::Output;
 
@@ -92,8 +86,8 @@ mod newomega {
         variants_rhs: [u8; MAX_SHIPS],
         commander_lhs: u8,
         commander_rhs: u8,
-        lhs_dead: bool,
-        rhs_dead: bool,
+        pub lhs_dead: bool,
+        pub rhs_dead: bool,
         rounds: u8,
         seed: u64,
         ships_lost_lhs: [u8; MAX_SHIPS],
@@ -113,21 +107,25 @@ mod newomega {
 
         fn min(&self, lhs: i32, rhs: i32) -> i32 {
             let result: i32;
+
             if lhs > rhs {
                 result = rhs;
             } else {
                 result = lhs;
             }
+
             result
         }
 
         fn max(&self, lhs: i32, rhs: i32) -> i32 {
             let result: i32;
+
             if lhs > rhs {
                 result = lhs;
             } else {
                 result = rhs;
             }
+
             result
         }
 
@@ -221,7 +219,7 @@ mod newomega {
             return self.min(self.max(0, damage as i32), cap_damage as i32) as u32;
         }
 
-        fn logShoot(&self, moveNumber: &mut u16, round: u8, moves: &mut Vec<Move>,
+        fn logShoot(&self, round: u8, moves: &mut Vec<Move>,
             source: u8, target: u8, damage: u32, position: i8) {
 
             moves.push(Move {
@@ -234,7 +232,7 @@ mod newomega {
             });
         }
 
-        fn logMove(&self, moveNumber: &mut u16, round: u8, moves: &mut Vec<Move>,
+        fn logMove(&self, round: u8, moves: &mut Vec<Move>,
             source: u8, target_position: i8) {
 
             moves.push(Move {
@@ -306,8 +304,6 @@ mod newomega {
                     let mut rhs_target: u8 = 0;
                     let mut lhs_delta_move: u8 = 0;
                     let mut rhs_delta_move: u8 = 0;
-                    let mut lhs_move_number: u16 = 0;
-                    let mut rhs_move_number: u16 = 0;
 
                     if !lhs_dead_ship {
                         (lhs_has_target, lhs_target, lhs_delta_move) = self.getTarget(
@@ -319,16 +315,16 @@ mod newomega {
 
                             match lhs_moves {
                                 Some(ref mut moves) =>
-                                    self.logShoot(&mut lhs_move_number, roundU8, moves, current_shipU8, lhs_target, lhs_damage,
+                                    self.logShoot(roundU8, moves, current_shipU8, lhs_target, lhs_damage,
                                         ship_positions_lhs[current_ship] - (lhs_delta_move as i8)),
-                                None => {}
+                                _ => ()
                             }
                         } else {
                             match lhs_moves {
                                 Some(ref mut moves) =>
-                                    self.logMove(&mut lhs_move_number, roundU8, moves, current_shipU8, ship_positions_lhs[current_ship] -
+                                    self.logMove(roundU8, moves, current_shipU8, ship_positions_lhs[current_ship] -
                                         (Ships[current_ship].speed as i8)),
-                                None => {}
+                                _ => ()
                             }
                         }
                     }
@@ -345,18 +341,18 @@ mod newomega {
 
                             match rhs_moves {
                                 Some(ref mut moves) =>
-                                    self.logShoot(&mut rhs_move_number, roundU8, moves, current_shipU8, rhs_target, rhs_damage,
+                                    self.logShoot(roundU8, moves, current_shipU8, rhs_target, rhs_damage,
                                         ship_positions_rhs[current_ship]),
-                                None => {}
+                                _ => ()
                             }
                         } else {
                             ship_positions_rhs[current_ship] += Ships[current_ship].speed as i8;
 
                             match rhs_moves {
                                 Some(ref mut moves) =>
-                                    self.logMove(&mut rhs_move_number, roundU8, moves, current_shipU8,
+                                    self.logMove(roundU8, moves, current_shipU8,
                                         ship_positions_rhs[current_ship]),
-                                None => {}
+                                _ => ()
                             }
                         }
                     }
@@ -411,14 +407,9 @@ mod newomega {
         use super::*;
 
         #[test]
-        fn default_works() {
-            let contract = NewOmega::default();
-            assert_eq!(contract.get(), 0);
-        }
-
-        #[test]
         fn it_works() {
-            let mut contract = NewOmega::new();
+            let mut contract = NewOmega::default();
+            contract.fight();
         }
     }
 }

@@ -7,38 +7,33 @@ pub use self::newomegagame::NewOmegaGame;
 mod newomegagame {
     use newomega::NewOmega;
     use newomega::Ship;
+    use newomega::MAX_SHIPS;
+    use newomega::FightResult;
+    use newomega::Move;
     use ink_prelude::vec::Vec;
-    use ink_storage::{
-        collections::{
-            Vec as StorageVec,
-        },
-        traits::{
-            PackedLayout,
-            SpreadLayout,
-        },
-        Lazy,
-    };
 
     #[ink(storage)]
     pub struct NewOmegaGame {
-        newomega: newomega::NewOmega,
+        owner: AccountId,
+        new_omega: NewOmega,
         ships: Vec<Ship>,
     }
 
     impl NewOmegaGame {
         #[ink(constructor)]
-        pub fn new(newomega: NewOmega) -> Self {
+        pub fn new(new_omega: NewOmega) -> Self {
             Self {
-                newomega,
+                owner: Self::env().caller(),
+                new_omega,
                 ships: Vec::new(),
             }
         }
 
-        // TODO Make this restricted to owner
         #[ink(message)]
-        pub fn addShip(&mut self, cp: u16, hp: u16, attack_base: u16, attack_variable: u16,
+        pub fn add_ship(&mut self, cp: u16, hp: u16, attack_base: u16, attack_variable: u16,
             defence: u16, speed: u8, range: u8) {
 
+            assert_eq!(self.env().caller(), self.owner);
             self.ships.push(Ship {
                 cp,
                 hp,
@@ -51,8 +46,20 @@ mod newomegagame {
         }
 
         #[ink(message)]
-        pub fn getShips(&self) -> Vec<Ship> {
+        pub fn get_ships(&self) -> Vec<Ship> {
+//            assert_eq!(self.env().caller(), self.owner);
             self.ships.clone()
+        }
+
+        #[ink(message)]
+        pub fn fight(&self, seed: u64, log_moves: bool, selection_lhs: [u8; MAX_SHIPS],
+            selection_rhs: [u8; MAX_SHIPS], variants_lhs: [u8; MAX_SHIPS],
+            variants_rhs: [u8; MAX_SHIPS], commander_lhs: u8, commander_rhs: u8) -> (FightResult, Option<Vec<Move>>,
+                Option<Vec<Move>>) {
+
+            // assert_eq!(self.env().caller(), self.owner);
+            self.new_omega.fight(seed, log_moves, self.get_ships(),
+                selection_lhs, selection_rhs, variants_lhs, variants_rhs, commander_lhs, commander_rhs)
         }
     }
 }

@@ -17,11 +17,12 @@ scale = { package = "parity-scale-codec", version = "1.3", default-features = fa
 
 newomega = { version = "1.0.0", path = "newomega", default-features = false, features = ["ink-as-dependency"] }
 newomegagame = { version = "1.0.0", path = "newomegagame", default-features = false, features = ["ink-as-dependency"] }
+newomegaranked = { version = "1.0.0", path = "newomegaranked", default-features = false, features = ["ink-as-dependency"] }
 scale-info = { version = "0.4.1", default-features = false, features = ["derive"], optional = true }
 
 [lib]
 name = "newomegadelegator"
-path = "lib.rs"
+path = "facade.rs"
 crate-type = [
     "cdylib",
     "rlib",
@@ -39,9 +40,9 @@ std = [
     "scale/std",
     "scale-info",
     "scale-info/std",
-
     "newomega/std",
     "newomegagame/std",
+    "newomegaranked/std",
 ]
 ink-as-dependency = []
 
@@ -49,4 +50,5 @@ ink-as-dependency = []
 members = [
     "newomega",
     "newomegagame",
+    "newomegaranked",
 ]
