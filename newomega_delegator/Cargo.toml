@@ -1,7 +1,7 @@
 [package]
 name = "newomegadelegator"
 version = "1.0.0"
-authors = ["Celrisen <celrisen@gmail.com>"]
+authors = ["Wiktor Starczewski <celrisen@gmail.com>"]
 edition = "2018"
 
 [dependencies]
@@ -16,6 +16,7 @@ ink_prelude = { version = "3.0.0-rc2", default-features = false }
 scale = { package = "parity-scale-codec", version = "1.3", default-features = false, features = ["derive"] }
 
 newomega = { version = "1.0.0", path = "newomega", default-features = false, features = ["ink-as-dependency"] }
+newomegastorage = { version = "1.0.0", path = "newomegastorage", default-features = false, features = ["ink-as-dependency"] }
 newomegagame = { version = "1.0.0", path = "newomegagame", default-features = false, features = ["ink-as-dependency"] }
 newomegaranked = { version = "1.0.0", path = "newomegaranked", default-features = false, features = ["ink-as-dependency"] }
 scale-info = { version = "0.4.1", default-features = false, features = ["derive"], optional = true }
@@ -43,6 +44,7 @@ std = [
     "newomega/std",
     "newomegagame/std",
     "newomegaranked/std",
+    "newomegastorage/std",
 ]
 ink-as-dependency = []
 
@@ -51,4 +53,5 @@ members = [
     "newomega",
     "newomegagame",
     "newomegaranked",
+    "newomegastorage",
 ]

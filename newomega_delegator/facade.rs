@@ -11,16 +11,21 @@ mod newomegadelegator {
     use newomegagame::NewOmegaGame;
     use newomegaranked::NewOmegaRanked;
     use newomegaranked::PlayerDefence;
+    use newomegastorage::NewOmegaStorage;
+    use newomegastorage::CommanderData;
+    use newomegastorage::PlayerData;
     use ink_prelude::vec::Vec;
     use ink_prelude::string::String;
     use ink_storage::{
         Lazy,
     };
+    use ink_lang::ToAccountId;
 
     #[ink(storage)]
     pub struct NewOmegaDelegator {
         owner: AccountId,
         new_omega: Lazy<NewOmega>,
+        new_omega_storage: Lazy<NewOmegaStorage>,
         new_omega_game: Lazy<NewOmegaGame>,
         new_omega_ranked: Lazy<NewOmegaRanked>,
     }
@@ -30,32 +35,38 @@ mod newomegadelegator {
         pub fn new(
             // version: u32,
             newomega_code_hash: Hash,
+            newomega_storage_code_hash: Hash,
             newomega_game_code_hash: Hash,
             newomega_ranked_code_hash: Hash,
         ) -> Self {
             let total_balance = Self::env().balance();
-            // let salt = version.to_le_bytes();
             let new_omega = NewOmega::new()
-                .endowment(total_balance / 4)
+                .endowment(total_balance / 8)
                 .code_hash(newomega_code_hash)
-                // .salt_bytes(salt)
                 .instantiate()
                 .expect("Failed instantiating NewOmega");
             let new_omega_game = NewOmegaGame::new(new_omega.clone())
-                .endowment(total_balance / 4)
+                .endowment(total_balance / 8)
                 .code_hash(newomega_game_code_hash)
-                // .salt_bytes(salt)
                 .instantiate()
                 .expect("Failed instantiating NewOmegaGame");
-            let new_omega_ranked = NewOmegaRanked::new(new_omega_game.clone())
-                .endowment(total_balance / 4)
+            let mut new_omega_storage = NewOmegaStorage::new()
+                .endowment(total_balance / 8)
+                .code_hash(newomega_storage_code_hash)
+                .instantiate()
+                .expect("Failed instantiating NewOmegaStorage");
+            let new_omega_ranked = NewOmegaRanked::new(new_omega_game.clone(), new_omega_storage.clone())
+                .endowment(total_balance / 8)
                 .code_hash(newomega_ranked_code_hash)
-                // .salt_bytes(salt)
                 .instantiate()
                 .expect("Failed instantiating NewOmegaRanked");
+
+            new_omega_storage.authorise_contract(new_omega_ranked.to_account_id());
+
             Self {
                 owner: Self::env().caller(),
                 new_omega: Lazy::new(new_omega),
+                new_omega_storage: Lazy::new(new_omega_storage),
                 new_omega_game: Lazy::new(new_omega_game),
                 new_omega_ranked: Lazy::new(new_omega_ranked),
             }
@@ -112,20 +123,13 @@ mod newomegadelegator {
         }
 
         #[ink(message)]
-        pub fn get_leaderboard(&self) -> Vec<PlayerDefence> {
-            self.new_omega_ranked.get_leaderboard()
+        pub fn get_leaderboard(&self) -> Vec<PlayerData> {
+            self.new_omega_storage.get_leaderboard()
         }
 
         #[ink(message)]
-        pub fn mark_win(&mut self, target: AccountId) {
-            assert_eq!(self.env().caller(), self.owner);
-            self.new_omega_ranked.mark_win(target);
-        }
-
-        #[ink(message)]
-        pub fn mark_loss(&mut self, target: AccountId) {
-            assert_eq!(self.env().caller(), self.owner);
-            self.new_omega_ranked.mark_loss(target);
+        pub fn get_commanders(&self) -> Vec<(u8, CommanderData)> {
+            self.new_omega_storage.get_commanders(self.env().caller())
         }
     }
 }

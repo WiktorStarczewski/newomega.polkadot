@@ -1,5 +1,5 @@
 [package]
-name = "newomegaranked"
+name = "newomegastorage"
 version = "1.0.0"
 authors = ["Wiktor Starczewski <celrisen@gmail.com>"]
 edition = "2018"
@@ -15,14 +15,11 @@ ink_prelude = { version = "3.0.0-rc2", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "1.3", default-features = false, features = ["derive"] }
 scale-info = { version = "0.4.1", default-features = false, features = ["derive"], optional = true }
-
-newomegagame = { version = "1.0.0", path = "../newomegagame", default-features = false, features = ["ink-as-dependency"] }
-newomegastorage = { version = "1.0.0", path = "../newomegastorage", default-features = false, features = ["ink-as-dependency"] }
 newomega = { version = "1.0.0", path = "../newomega", default-features = false, features = ["ink-as-dependency"] }
 
 [lib]
-name = "newomegaranked"
-path = "newomegaranked.rs"
+name = "newomegastorage"
+path = "newomegastorage.rs"
 crate-type = [
     # Used for normal contract Wasm blobs.
     "cdylib",
@@ -40,7 +37,5 @@ std = [
     "scale-info",
     "scale-info/std",
     "newomega/std",
-    "newomegagame/std",
-    "newomegastorage/std",
 ]
 ink-as-dependency = []

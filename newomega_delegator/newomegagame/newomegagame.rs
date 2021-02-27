@@ -25,7 +25,7 @@ mod newomegagame {
             Self {
                 owner: Self::env().caller(),
                 new_omega,
-                ships: Vec::new(),
+                ships: newomega::prepare_ships(),
             }
         }
 
@@ -47,7 +47,6 @@ mod newomegagame {
 
         #[ink(message)]
         pub fn get_ships(&self) -> Vec<Ship> {
-//            assert_eq!(self.env().caller(), self.owner);
             self.ships.clone()
         }
 
@@ -57,7 +56,6 @@ mod newomegagame {
             variants_rhs: [u8; MAX_SHIPS], commander_lhs: u8, commander_rhs: u8) -> (FightResult, Option<Vec<Move>>,
                 Option<Vec<Move>>) {
 
-            // assert_eq!(self.env().caller(), self.owner);
             self.new_omega.fight(seed, log_moves, self.get_ships(),
                 selection_lhs, selection_rhs, variants_lhs, variants_rhs, commander_lhs, commander_rhs)
         }
