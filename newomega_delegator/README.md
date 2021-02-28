@@ -69,7 +69,7 @@ The ```selection``` can contain any ```u8```, the values ```variants``` are expe
 
 * Expected: One entry, containing Bob's name, selection, variants and commander as passed in step #2.
 
-5. [as Alice] Execute the ```attack``` function wth ```0x02020202``` as both ```selection``` and ```variants```. Pass ```0``` for commander.
+5. [as Alice] Execute the ```attack``` function, setting target to Bob, wth ```0x02020202``` as both ```selection``` and ```variants```. Pass ```0``` for commander.
 
 * Expected: Contract executes.
 
