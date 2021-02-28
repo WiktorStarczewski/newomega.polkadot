@@ -18,6 +18,11 @@ The Solutions consists of 6 contracts in total:
 At the very bottom resides the Delegator pattern, represented by the Delegator module.
 For more information about each contract, look at the README in their directories.
 
+
+<img width="548" alt="newomega polkadot uml" src="https://user-images.githubusercontent.com/5662527/109423535-1791d300-79e0-11eb-9d02-f0577836270e.png">
+
+
+
 * Delegator
 
 The Delegator is the single point of interaction for the game client, and is responsible
