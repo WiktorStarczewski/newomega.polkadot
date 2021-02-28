@@ -14,6 +14,8 @@ mod newomegadelegator {
     use newomegastorage::NewOmegaStorage;
     use newomegastorage::CommanderData;
     use newomegastorage::PlayerData;
+    use newomegarewarder::NewOmegaRewarder;
+    use newomegarewarder::RewardWithdrawError;
     use ink_prelude::vec::Vec;
     use ink_prelude::string::String;
     use ink_storage::{
@@ -28,16 +30,17 @@ mod newomegadelegator {
         new_omega_storage: Lazy<NewOmegaStorage>,
         new_omega_game: Lazy<NewOmegaGame>,
         new_omega_ranked: Lazy<NewOmegaRanked>,
+        new_omega_rewarder: Lazy<NewOmegaRewarder>,
     }
 
     impl NewOmegaDelegator {
         #[ink(constructor)]
         pub fn new(
-            // version: u32,
             newomega_code_hash: Hash,
             newomega_storage_code_hash: Hash,
             newomega_game_code_hash: Hash,
             newomega_ranked_code_hash: Hash,
+            newomega_rewarder_code_hash: Hash,
         ) -> Self {
             let total_balance = Self::env().balance();
             let new_omega = NewOmega::new()
@@ -60,8 +63,14 @@ mod newomegadelegator {
                 .code_hash(newomega_ranked_code_hash)
                 .instantiate()
                 .expect("Failed instantiating NewOmegaRanked");
+            let new_omega_rewarder = NewOmegaRewarder::new(new_omega_storage.clone())
+                .endowment(total_balance / 8)
+                .code_hash(newomega_rewarder_code_hash)
+                .instantiate()
+                .expect("Failed instantiating NewOmegaRewarder");
 
             new_omega_storage.authorise_contract(new_omega_ranked.to_account_id());
+            new_omega_storage.authorise_contract(new_omega_rewarder.to_account_id());
 
             Self {
                 owner: Self::env().caller(),
@@ -69,6 +78,7 @@ mod newomegadelegator {
                 new_omega_storage: Lazy::new(new_omega_storage),
                 new_omega_game: Lazy::new(new_omega_game),
                 new_omega_ranked: Lazy::new(new_omega_ranked),
+                new_omega_rewarder: Lazy::new(new_omega_rewarder),
             }
         }
 
@@ -123,13 +133,24 @@ mod newomegadelegator {
         }
 
         #[ink(message)]
-        pub fn get_leaderboard(&self) -> Vec<PlayerData> {
+        pub fn get_leaderboard(&self) -> Vec<(AccountId, PlayerData)> {
             self.new_omega_storage.get_leaderboard()
         }
 
         #[ink(message)]
         pub fn get_commanders(&self) -> Vec<(u8, CommanderData)> {
             self.new_omega_storage.get_commanders(self.env().caller())
+        }
+
+        #[ink(message)]
+        pub fn buy_loot_crate(&mut self) -> u8 {
+            let caller: AccountId = self.env().caller();
+            self.new_omega_rewarder.buy_loot_crate(caller)
+        }
+
+        #[ink(message)]
+        pub fn admin_withdraw_funds(&mut self, value: Balance) -> Result<(), RewardWithdrawError> {
+            self.new_omega_rewarder.withdraw_funds(self.owner, value)
         }
     }
 }

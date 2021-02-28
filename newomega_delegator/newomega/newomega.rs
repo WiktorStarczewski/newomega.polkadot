@@ -14,9 +14,9 @@ mod newomega {
     #[ink(storage)]
     pub struct NewOmega {}
 
-    pub const MAX_ROUNDS: usize = 25;
     pub const MAX_SHIPS: usize = 4;
-    pub const FIT_TO_STAT: u16 = 20;
+    const MAX_ROUNDS: usize = 50;
+    const FIT_TO_STAT: u16 = 20;
 
     use ink_prelude::vec::Vec;
     use ink_storage::{

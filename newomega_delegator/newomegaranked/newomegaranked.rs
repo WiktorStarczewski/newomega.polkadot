@@ -24,7 +24,7 @@ mod newomegaranked {
         },
     };
 
-    pub const XP_PER_RANKED_WIN: u32 = 1;
+    const XP_PER_RANKED_WIN: u32 = 1;
 
     #[derive(scale::Encode, scale::Decode, SpreadLayout, PackedLayout, Clone)]
     #[cfg_attr(
@@ -43,11 +43,6 @@ mod newomegaranked {
         commander: u8,
         name: String,
     }
-
-
-    // gamerewarder
-    // OPTIONAL commanders, increase xp, expose get_my_commanders
-    // OPTIONAL make newomegastorage
 
     #[ink(storage)]
     pub struct NewOmegaRanked {

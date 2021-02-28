@@ -129,10 +129,18 @@ mod newomegastorage {
         }
 
         #[ink(message)]
-        pub fn get_leaderboard(&self) -> Vec<PlayerData> {
+        pub fn has_commander(&self, caller: AccountId, commander_id: u8) -> bool {
+            self.commanders.contains_key(&(caller, commander_id))
+        }
+
+        #[ink(message)]
+        pub fn get_leaderboard(&self) -> Vec<(AccountId, PlayerData)> {
             self.players
-                .values()
-                .cloned()
+                .iter()
+                .filter_map(|entry| {
+                    let (&key, &value) = entry;
+                    Some((key, value))
+                })
                 .collect()
         }
     }
