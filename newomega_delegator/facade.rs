@@ -15,13 +15,20 @@ mod newomegadelegator {
     use newomegastorage::CommanderData;
     use newomegastorage::PlayerData;
     use newomegarewarder::NewOmegaRewarder;
-    use newomegarewarder::RewardWithdrawError;
     use ink_prelude::vec::Vec;
     use ink_prelude::string::String;
     use ink_storage::{
         Lazy,
     };
     use ink_lang::ToAccountId;
+
+    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum RewardWithdrawError {
+        TransferFailed,
+        InsufficientFunds,
+        BelowSubsistenceThreshold,
+    }
 
     #[ink(storage)]
     pub struct NewOmegaDelegator {
@@ -33,7 +40,10 @@ mod newomegadelegator {
         new_omega_rewarder: Lazy<NewOmegaRewarder>,
     }
 
+    const LOOT_CRATE_PRICE: u128 = 1;
+
     impl NewOmegaDelegator {
+
         #[ink(constructor)]
         pub fn new(
             newomega_code_hash: Hash,
@@ -142,15 +152,29 @@ mod newomegadelegator {
             self.new_omega_storage.get_commanders(self.env().caller())
         }
 
-        #[ink(message)]
+        #[ink(message, payable)]
         pub fn buy_loot_crate(&mut self) -> u8 {
+            assert!(self.env().transferred_balance() >= LOOT_CRATE_PRICE);
             let caller: AccountId = self.env().caller();
             self.new_omega_rewarder.buy_loot_crate(caller)
         }
 
         #[ink(message)]
         pub fn admin_withdraw_funds(&mut self, value: Balance) -> Result<(), RewardWithdrawError> {
-            self.new_omega_rewarder.withdraw_funds(self.owner, value)
+            assert_eq!(self.env().caller(), self.owner);
+            if value > self.env().balance() {
+                return Err(RewardWithdrawError::InsufficientFunds)
+            }
+            self.env()
+                .transfer(self.owner, value)
+                .map_err(|err| {
+                    match err {
+                        ink_env::Error::BelowSubsistenceThreshold => {
+                            RewardWithdrawError::BelowSubsistenceThreshold
+                        }
+                        _ => RewardWithdrawError::TransferFailed,
+                    }
+                })
         }
     }
 }
