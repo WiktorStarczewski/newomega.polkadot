@@ -94,7 +94,7 @@ Ensure there is enough funds (1 unit) in Eve's account.
 
 1. [as Eve] Execute the ```buy_loot_crate``` function, with Payment set to 1 (unit).
 
-* Expected: An ```u8``` with a random number between 0 and 3 (note, it is much more likely to get 0 than 1, 1 than 2, 2 than 3).
+* Expected: Contract executes.
 
 2. [as Eve] Execute the ```get_commanders``` function.
 
