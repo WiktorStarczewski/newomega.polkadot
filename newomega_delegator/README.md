@@ -90,9 +90,9 @@ It is best to use manual gas, and add a buffer to the estimate (suggested: 10000
 
 ## Testing the Rewarder module
 
-Ensure there is enough funds (1 token) in Eve's account.
+Ensure there is enough funds (1 unit) in Eve's account.
 
-1. [as Eve] Execute the ```buy_loot_crate``` function.
+1. [as Eve] Execute the ```buy_loot_crate``` function, with Payment set to 1 (unit).
 
 * Expected: An ```u8``` with a random number between 0 and 3 (note, it is much more likely to get 0 than 1, 1 than 2, 2 than 3).
 
