@@ -88,7 +88,7 @@ It is best to use manual gas, and add a buffer to the estimate (suggested: 10000
 
 * Expected: No entries.
 
-* Testing the Rewarder module
+## Testing the Rewarder module
 
 Ensure there is enough funds (1 token) in Eve's account.
 
