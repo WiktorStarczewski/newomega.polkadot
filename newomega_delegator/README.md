@@ -71,6 +71,9 @@ The ```selection``` can contain any ```u8```, the values ```variants``` are expe
 
 5. [as Alice] Execute the ```attack``` function, setting target to Bob, wth ```0x02020202``` as both ```selection``` and ```variants```. Pass ```0``` for commander.
 
+### NOTE
+It is best to use manual gas, and add a buffer to the estimate (suggested: 100000 (100k)). That is due to the random factor, which determines the amount of rounds, and therefore amount of computations.
+
 * Expected: Contract executes.
 
 6. [as whoever] Execute the ```get_leaderboard``` function.
