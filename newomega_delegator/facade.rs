@@ -46,6 +46,7 @@ mod newomegadelegator {
 
         #[ink(constructor)]
         pub fn new(
+            version: u32,
             newomega_code_hash: Hash,
             newomega_storage_code_hash: Hash,
             newomega_game_code_hash: Hash,
@@ -53,29 +54,35 @@ mod newomegadelegator {
             newomega_rewarder_code_hash: Hash,
         ) -> Self {
             let total_balance = Self::env().balance();
+            let salt = version.to_le_bytes();
             let new_omega = NewOmega::new()
                 .endowment(total_balance / 8)
                 .code_hash(newomega_code_hash)
+                .salt_bytes(salt)
                 .instantiate()
                 .expect("Failed instantiating NewOmega");
             let new_omega_game = NewOmegaGame::new(new_omega.clone())
                 .endowment(total_balance / 8)
                 .code_hash(newomega_game_code_hash)
+                .salt_bytes(salt)
                 .instantiate()
                 .expect("Failed instantiating NewOmegaGame");
             let mut new_omega_storage = NewOmegaStorage::new()
                 .endowment(total_balance / 8)
                 .code_hash(newomega_storage_code_hash)
+                .salt_bytes(salt)
                 .instantiate()
                 .expect("Failed instantiating NewOmegaStorage");
             let new_omega_ranked = NewOmegaRanked::new(new_omega_game.clone(), new_omega_storage.clone())
                 .endowment(total_balance / 8)
                 .code_hash(newomega_ranked_code_hash)
+                .salt_bytes(salt)
                 .instantiate()
                 .expect("Failed instantiating NewOmegaRanked");
             let new_omega_rewarder = NewOmegaRewarder::new(new_omega_storage.clone())
                 .endowment(total_balance / 8)
                 .code_hash(newomega_rewarder_code_hash)
+                .salt_bytes(salt)
                 .instantiate()
                 .expect("Failed instantiating NewOmegaRewarder");
 
