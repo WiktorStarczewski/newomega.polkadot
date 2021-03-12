@@ -6,6 +6,9 @@ use ink_lang as ink;
 pub use self::newomegaranked::NewOmegaRanked;
 pub use self::newomegaranked::PlayerDefence;
 
+/// The logic for all ranked fights between players. Connected to Fight Management
+/// in order to run fights, and to Storage in order to save the results and perform
+/// actions according to their result.
 #[ink::contract]
 mod newomegaranked {
     use newomegagame::NewOmegaGame;
@@ -26,6 +29,7 @@ mod newomegaranked {
 
     const XP_PER_RANKED_WIN: u32 = 1;
 
+    /// Describes a registered defence of a player
     #[derive(scale::Encode, scale::Decode, SpreadLayout, PackedLayout, Clone)]
     #[cfg_attr(
         feature = "std",
@@ -38,9 +42,13 @@ mod newomegaranked {
         )
     )]
     pub struct PlayerDefence {
+        /// Fleet composition
         selection: [u8; MAX_SHIPS],
+        /// Fleet variants (fittings)
         variants: [u8; MAX_SHIPS],
+        /// Commander index
         commander: u8,
+        /// Defender name
         name: String,
     }
 
@@ -72,6 +80,15 @@ mod newomegaranked {
             }
         }
 
+        /// Registers a fleet for Ranked Defence.
+        ///
+        /// # Arguments
+        ///
+        /// * `caller` - The account id of the player to register the defence for
+        /// * `selection` - The fleet composition of the defence
+        /// * `variants` - The variants (fittings) of the defence
+        /// * `commander` - Index of the commander leading the defence
+        /// * `name` - The defender name
         #[ink(message)]
         pub fn register_defence(&mut self, caller: AccountId, selection: [u8; MAX_SHIPS],
             variants: [u8; MAX_SHIPS], commander: u8, name: String) {
@@ -85,6 +102,16 @@ mod newomegaranked {
             });
         }
 
+        /// Gets the registered defence of a player.
+        /// Will panic if defence has not been registered for the player.
+        ///
+        /// # Arguments
+        ///
+        /// * `caller` - The account id of the player to register the defence for
+        ///
+        /// # Returns
+        ///
+        /// * `defence` - The registered defence
         #[ink(message)]
         pub fn get_own_defence(&self, caller: AccountId) -> PlayerDefence {
 
@@ -101,6 +128,19 @@ mod newomegaranked {
             }
         }
 
+        /// Calculates a ranked fight between two players.
+        ///
+        /// # Arguments
+        ///
+        /// * `caller` - account id of the attacker
+        /// * `target` - account id of the defender
+        /// * `selection` - Attacker fleet composition (array with ship quantities)
+        /// * `variants` - An array that holds variants of the attacker fleet
+        /// * `commander` - The attacker commander
+        ///
+        /// # Events
+        ///
+        /// * RankedFightComplete - when fight is complete
         #[ink(message)]
         pub fn attack(&mut self, caller: AccountId, target: AccountId, selection: [u8; MAX_SHIPS],
             variants: [u8; MAX_SHIPS], commander: u8) {
@@ -109,8 +149,11 @@ mod newomegaranked {
             assert!(self.defences.get(&caller).is_some());
             assert!(self.defences.get(&target).is_some());
 
+            /// Try to get the defence
             let target_defence: &PlayerDefence = self.defences.get(&target).unwrap();
+            /// Determine the seed, in a naive way -> IMPROVEME: MOVE TO VRF
             let seed: u64 = self.env().block_timestamp();
+            /// Calculate the fight result
             let (result, lhs_moves, rhs_moves) =
                 self.new_omega_game.fight(
                     seed,
@@ -122,6 +165,7 @@ mod newomegaranked {
                     commander,
                     target_defence.commander);
 
+            /// Mark results of the fight on the leaderboard and adjust commander xp
             if result.lhs_dead {
                 self.new_omega_storage.mark_ranked_win(target);
                 self.new_omega_storage.mark_ranked_loss(caller);
@@ -134,6 +178,7 @@ mod newomegaranked {
                     commander, XP_PER_RANKED_WIN);
             }
 
+            /// Emit the event
             self.env().emit_event(RankedFightComplete {
                 attacker: caller,
                 defender: target,

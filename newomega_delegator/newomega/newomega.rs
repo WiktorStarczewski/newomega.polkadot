@@ -9,6 +9,15 @@ pub use self::newomega::FightResult;
 pub use self::newomega::MAX_SHIPS;
 pub use self::newomega::prepare_ships;
 
+/// This contract has no storage, and all its methods are pure (stateless).
+/// It is able to simulate fights, given a set of input parameters,
+/// for which it always gives a deterministic result.
+/// This implies, that the exact fight (moves of the players), can be always
+/// regenerated provided the same set of input parameters (fleet selection).
+/// In fact, it is possible not to store (and return) the fight at all,
+/// only its result, via a boolean flag.
+/// This is used in order to save cost - precise fight generation can be recreated using (free)
+/// RPC calls, not paid transactions.
 #[ink::contract]
 mod newomega {
     #[ink(storage)]
@@ -26,6 +35,8 @@ mod newomega {
         },
     };
 
+    /// Describes a single move in a fight.
+    /// A move can be pure reposition, shoot, or reposition with shoot.
     #[derive(scale::Encode, scale::Decode, SpreadLayout, PackedLayout, Copy, Clone)]
     #[cfg_attr(
         feature = "std",
@@ -38,14 +49,22 @@ mod newomega {
         )
     )]
     pub struct Move {
+        /// Shoot, Reposition
         move_type: u8,
+        /// Round the move took place in
         round: u8,
+        /// Source ship id
         source: u8,
+        /// Target ship id, in the case of shoot
         target: u8,
+        /// Position to move to, if needed
         target_position: i8,
+        /// Damage of the shot, if needed
         damage: u32
     }
 
+    /// Describes a single Ship on the board
+    /// A move can be pure reposition, shoot, or reposition with shoot.
     #[derive(scale::Encode, scale::Decode, SpreadLayout, PackedLayout, Copy, Clone)]
     #[cfg_attr(
         feature = "std",
@@ -58,12 +77,19 @@ mod newomega {
         )
     )]
     pub struct Ship {
+        /// Command Power (to calculate fleet weights)
         pub cp: u16,
+        /// Health Points of the ship
         pub hp: u16,
+        /// Base attack
         pub attack_base: u16,
+        /// Variable attack (subject to random)
         pub attack_variable: u16,
+        /// Defence of the ship
         pub defence: u16,
+        /// Speed, number of fields the ship can move in a round
         pub speed: u8,
+        /// Range, number of fields in front of it the ship can shoot to in a round
         pub range: u8
     }
 
@@ -79,23 +105,36 @@ mod newomega {
         )
     )]
     pub struct FightResult {
+        /// Attacker fleet composition
         selection_lhs: [u8; MAX_SHIPS],
+        /// Defencer fleet composition
         selection_rhs: [u8; MAX_SHIPS],
+        /// Attacker ship variants (fittings, 0=neutral, 1=defensive, 2=offensive)
         variants_lhs: [u8; MAX_SHIPS],
+        /// Defender ship variants (fittings, 0=neutral, 1=defensive, 2=offensive)
         variants_rhs: [u8; MAX_SHIPS],
+        /// Attacker commander id
         commander_lhs: u8,
+        /// Defender commander id
         commander_rhs: u8,
+        /// Did the attacker die?
         pub lhs_dead: bool,
+        /// Did the defender die?
         pub rhs_dead: bool,
+        /// Length of the fight in rounds
         rounds: u8,
+        /// Random seed the fight was generated with
         seed: u64,
+        /// Attackers ships lost
         ships_lost_lhs: [u8; MAX_SHIPS],
+        /// Defenders ships lost
         ships_lost_rhs: [u8; MAX_SHIPS]
     }
 
     pub fn prepare_ships() -> Vec<Ship> {
         let mut ships: Vec<Ship> = Vec::new();
 
+        /// Initialize default ships
         ships.push(Ship {
             cp: 1,
             hp: 120,
@@ -147,6 +186,7 @@ mod newomega {
             Self::new()
         }
 
+        /// Return minimum of two i32 values
         fn min(&self, lhs: i32, rhs: i32) -> i32 {
             let result: i32;
 
@@ -159,6 +199,7 @@ mod newomega {
             result
         }
 
+        /// Return maximum of two i32 values
         fn max(&self, lhs: i32, rhs: i32) -> i32 {
             let result: i32;
 
@@ -171,6 +212,15 @@ mod newomega {
             result
         }
 
+        /// Checks whether player is dead, according to their ship hp's
+        ///
+        /// # Arguments
+        ///
+        /// * `ship_hps` - An array of fleet HPs of the player
+        ///
+        /// # Returns
+        ///
+        /// * `is_dead` - Whether the player fleet is dead
         fn is_dead(&self, ship_hps: [i32; MAX_SHIPS]) -> bool {
             let mut is_target_dead: bool = true;
 
@@ -183,6 +233,16 @@ mod newomega {
             is_target_dead
         }
 
+        /// Gets the defence stat of a ship, modified by the variant (fitting)
+        ///
+        /// # Arguments
+        ///
+        /// * `stat` - Base ship statistic to modify
+        /// * `variant` - Ship variant, 0=Neutral, 1=Defensive, 2=Offensive
+        ///
+        /// # Returns
+        ///
+        /// * `final_stat` - The modified defence stat
         fn get_defence_stat(&self, stat: u16, variant: u8) -> u16 {
             let mut final_stat: u16 = 0;
 
@@ -196,6 +256,16 @@ mod newomega {
             final_stat
         }
 
+        /// Gets the attack stat of a ship, modified by the variant (fitting)
+        ///
+        /// # Arguments
+        ///
+        /// * `stat` - Base ship statistic to modify
+        /// * `variant` - Ship variant, 0=Neutral, 1=Defensive, 2=Offensive
+        ///
+        /// # Returns
+        ///
+        /// * `final_stat` - The modified attack stat
         fn get_attack_stat(&self, stat: u16, variant: u8) -> u16 {
             let mut final_stat: u16 = 0;
 
@@ -209,6 +279,26 @@ mod newomega {
             final_stat
         }
 
+        /// Picks a target for a ship.
+        ///
+        /// # Arguments
+        ///
+        /// * `ships` - A Vec that holds the definiton of all the ships
+        /// * `current_ship` - Index of the ship to pick target for
+        /// * `ship_positions_own` - An array of fleet positions of the player performing the move
+        /// * `ship_positions_enemy` - An array of fleet positions of the player NOT performing the move
+        /// * `ship_hps_own` - An array of fleet HPs of the player performing the move
+        /// * `ship_hps_enemy` - An array of fleet HPs of the player NOT performing the move
+        ///
+        /// # Returns
+        ///
+        /// * `has_target` - A bool, indicating whether a target has been found
+        /// * `target` - Target ship identifier
+        /// * `proposed_move` - The new source ship position (can be unchanged)
+        ///
+        /// # Algorithm rules:
+        ///     1. To be considered in range, target ship must be within range+speed from source ship
+        ///     2. Targets are picked according to their size, ie bigger ships first
         fn get_target(&self, ships: &Vec<Ship>, current_ship: u8,
             ship_positions_own: [i8; MAX_SHIPS], ship_positions_enemy: [i8; MAX_SHIPS],
             ship_hps_enemy: [i32; MAX_SHIPS]) -> (bool, u8, u8) {
@@ -225,7 +315,9 @@ mod newomega {
                 if (delta <= ships[current_ship_usize].range + ships[current_ship_usize].speed) &&
                     ship_hps_enemy[current_ship_usize] > 0 {
 
+                    /// We have found a target
                     min_distance_index = enemy_ship;
+                    /// Do we need to move?
                     if delta > ships[current_ship_usize].range {
                         proposed_move = delta - ships[current_ship_usize].range;
                     } else {
@@ -239,6 +331,21 @@ mod newomega {
             (min_distance_index < (MAX_SHIPS as u8), min_distance_index, proposed_move)
         }
 
+        /// Calculate damage done by a ship to another ship.
+        ///
+        /// # Arguments
+        ///
+        /// * `variables` - An array that holds the precalculated variable damage coefficients
+        /// * `variants_source` - An array that holds variants of the fleet of the player shooting
+        /// * `variants_target` - An array that holds variants of the fleet of the player NOT shooting
+        /// * `ships` - A Vec that holds the definiton of all the ships
+        /// * `source` - Index of the ship shooting
+        /// * `target` - Index of the ship being shot at
+        /// * `source_hp` - HPs left, of the shooting ship
+        ///
+        /// # Returns
+        ///
+        /// * `damage` - The calculated damage
         fn calculate_damage(&self, variables: [u16; MAX_SHIPS], variants_source: [u8; MAX_SHIPS],
             variants_target: [u8; MAX_SHIPS], ships: &Vec<Ship>, source: u8,
             target: u8, source_hp: u32) -> u32 {
@@ -252,6 +359,8 @@ mod newomega {
             let mut damage: u32 = (attack - self.get_defence_stat(ships[target_usize].defence, variants_target[target_usize])) as u32 *
                 (source_ships_count as u32);
 
+            /// Hard counter mechanic
+            /// Increase the damage +50% to smaller ships directly below the ship
             if ((source as i8) - (target as i8) == 1) ||
                 (source == 0 && target == MAX_SHIPS as u8 - 1) {
 
@@ -261,6 +370,16 @@ mod newomega {
             return self.min(self.max(0, damage as i32), cap_damage as i32) as u32;
         }
 
+        /// Logs the Shoot move into the moves array.
+        ///
+        /// # Arguments
+        ///
+        /// * `round` - Round in which the move took place
+        /// * `moves` - The Moves array to modify (mutable)
+        /// * `source` - Index of the ship performing the move
+        /// * `target` - Index of the target ship
+        /// * `damage` - Damage inflicted
+        /// * `position` - New ship position (can be unchanged)
         fn log_shoot(&self, round: u8, moves: &mut Vec<Move>,
             source: u8, target: u8, damage: u32, position: i8) {
 
@@ -274,6 +393,16 @@ mod newomega {
             });
         }
 
+        /// Logs the Reposition move into the moves array.
+        ///
+        /// # Arguments
+        ///
+        /// * `round` - Round in which the move took place
+        /// * `moves` - The Moves array to modify (mutable)
+        /// * `source` - Index of the ship performing the move
+        /// * `target` - Index of the target ship
+        /// * `damage` - Damage inflicted
+        /// * `position` - New ship position (can be unchanged)
         fn log_move(&self, round: u8, moves: &mut Vec<Move>,
             source: u8, target_position: i8) {
 
@@ -287,6 +416,34 @@ mod newomega {
             });
         }
 
+        /// Calculates a fight.
+        ///
+        /// # Arguments
+        ///
+        /// * `seed` - Seed used to generate randomness
+        /// * `log_moves` - Whether to return a detailed fight log
+        /// * `ships` - A Vec that holds the definiton of all the ships
+        /// * `selection_lhs` - Attacker fleet composition (array with ship quantities)
+        /// * `selection_rhs` - Defender fleet composition (array with ship quantities)
+        /// * `variants_lhs` - An array that holds variants of the attacker fleet
+        /// * `variants_rhs` - An array that holds variants of the defender fleet
+        /// * `commander_lhs` - The attacker commander
+        /// * `commander_rhs` - The defender commander
+        ///
+        /// # Returns
+        ///
+        /// * `result` - A FightResult structure containing the result
+        /// * `moves_lhs` - Logged moves of the attacker, if requested. None if not.
+        /// * `moves_rhs` - Logged moves of the defender, if requested. None if not.
+        ///
+        /// # Algorithm rules:
+        ///     1. A fight is divided into rounds.
+        ///     2. Each round, ships perform moves in turns, starting from smallest ships.
+        ///     3. In each round, the same type of ship, of both the attacker and defender,
+        ///        attacks at the same time.
+        ///     4. Ships can move, shoot, or both, depending on their Range and Speed.
+        ///     5. The winner is declared when one player is dead, or when the fight is still not finished
+        ///        after maximum number of rounds.
         #[ink(message)]
         pub fn fight(&self, seed: u64, log_moves: bool, ships: Vec<Ship>,
             selection_lhs: [u8; MAX_SHIPS], selection_rhs: [u8; MAX_SHIPS],
@@ -294,13 +451,17 @@ mod newomega {
             commander_lhs: u8, commander_rhs: u8) -> (FightResult, Option<Vec<Move>>,
                 Option<Vec<Move>>) {
 
+            /// Starting ship positions for both sides
             let mut ship_positions_lhs: [i8; MAX_SHIPS] = [10, 11, 12, 13];
             let mut ship_positions_rhs: [i8; MAX_SHIPS] = [-10, -11, -12, -13];
+            /// Current ship HPs, per ship type
             let mut ship_hps_lhs: [i32; MAX_SHIPS] = [0; MAX_SHIPS];
             let mut ship_hps_rhs: [i32; MAX_SHIPS] = [0; MAX_SHIPS];
+            /// Precalculated variable damage coefficients
             let mut variables_lhs: [u16; MAX_SHIPS] = [0; MAX_SHIPS];
             let mut variables_rhs: [u16; MAX_SHIPS] = [0; MAX_SHIPS];
 
+            /// Precalculate the variables and initialize the ship HPs
             for i in 0..MAX_SHIPS {
                 ship_hps_lhs[i] = (ships[i].hp as i32) * (selection_lhs[i] as i32);
                 ship_hps_rhs[i] = (ships[i].hp as i32) * (selection_rhs[i] as i32);
@@ -312,11 +473,13 @@ mod newomega {
             let mut rhs_moves: Option<Vec<Move>> = None;
             let mut total_rounds: u8 = 0;
 
+            /// Only initialize the moves when required, to save gas
             if log_moves {
                 lhs_moves = Some(Vec::new());
                 rhs_moves = Some(Vec::new());
             }
 
+            /// Loop intented to be broken out of if resolution is found quicker than MAX_ROUNDS
             for round in 0..MAX_ROUNDS {
                 if self.is_dead(ship_hps_lhs) || self.is_dead(ship_hps_rhs) {
                     break;
@@ -325,6 +488,7 @@ mod newomega {
                 let round_u8: u8 = round as u8;
                 total_rounds = total_rounds + 1;
 
+                /// Loop through all the ships
                 for current_ship in 0..MAX_SHIPS {
                     let current_ship_u8: u8 = current_ship as u8;
                     let mut lhs_has_target: bool = false;
@@ -338,6 +502,7 @@ mod newomega {
                     let mut lhs_delta_move: u8 = 0;
                     let mut rhs_delta_move: u8 = 0;
 
+                    /// Note, moving and dealing damage to attacker is delayed until defender has moved also
                     if !lhs_dead_ship {
                         (lhs_has_target, lhs_target, lhs_delta_move) = self.get_target(
                             &ships, current_ship_u8, ship_positions_lhs, ship_positions_rhs, ship_hps_rhs);
@@ -346,6 +511,7 @@ mod newomega {
                             lhs_damage = self.calculate_damage(variables_lhs, variants_lhs, variants_rhs,
                                 &ships, current_ship_u8, lhs_target, ship_hps_lhs[current_ship] as u32);
 
+                            /// Log the move, if required
                             match lhs_moves {
                                 Some(ref mut moves) =>
                                     self.log_shoot(round_u8, moves, current_ship_u8, lhs_target, lhs_damage,
@@ -353,6 +519,7 @@ mod newomega {
                                 _ => ()
                             }
                         } else {
+                            /// Log the move, if required
                             match lhs_moves {
                                 Some(ref mut moves) =>
                                     self.log_move(round_u8, moves, current_ship_u8, ship_positions_lhs[current_ship] -
@@ -369,9 +536,12 @@ mod newomega {
                         if rhs_has_target {
                             rhs_damage = self.calculate_damage(variables_rhs, variants_rhs, variants_lhs,
                                 &ships, current_ship_u8, rhs_target, ship_hps_rhs[current_ship] as u32);
+
+                            /// Move the ships, apply the damage
                             ship_hps_lhs[rhs_target as usize] -= rhs_damage as i32;
                             ship_positions_rhs[current_ship] += rhs_delta_move as i8;
 
+                            /// Log the move, if required
                             match rhs_moves {
                                 Some(ref mut moves) =>
                                     self.log_shoot(round_u8, moves, current_ship_u8, rhs_target, rhs_damage,
@@ -379,8 +549,10 @@ mod newomega {
                                 _ => ()
                             }
                         } else {
+                            /// Move the ships
                             ship_positions_rhs[current_ship] += ships[current_ship].speed as i8;
 
+                            /// Log the move, if required
                             match rhs_moves {
                                 Some(ref mut moves) =>
                                     self.log_move(round_u8, moves, current_ship_u8,
@@ -390,17 +562,21 @@ mod newomega {
                         }
                     }
 
+                    /// Now applying attacker moves
                     if !lhs_dead_ship {
                         if lhs_has_target {
+                            /// Move the ships, apply the damage
                             ship_hps_rhs[lhs_target as usize] -= lhs_damage as i32;
                             ship_positions_lhs[current_ship] -= lhs_delta_move as i8;
                         } else {
+                            /// Move the ships
                             ship_positions_lhs[current_ship] -= ships[current_ship].speed as i8;
                         }
                     }
                 }
             }
 
+            /// Calculate ships lost according to HPs left
             let mut ships_lost_lhs: [u8; MAX_SHIPS] = [0; MAX_SHIPS];
             let mut ships_lost_rhs: [u8; MAX_SHIPS] = [0; MAX_SHIPS];
             for i in 0..MAX_SHIPS {
