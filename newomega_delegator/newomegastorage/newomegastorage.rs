@@ -167,13 +167,13 @@ mod newomegastorage {
             contract.mark_ranked_win(accounts.alice);
             contract.mark_ranked_loss(accounts.bob);
 
-            let leaderboard: Vec<PlayerData> = contract.get_leaderboard();
+            let leaderboard: Vec<(AccountId, PlayerData)> = contract.get_leaderboard();
 
             assert_eq!(leaderboard.len(), 2);
-            assert_eq!(leaderboard[0].ranked_wins, 1);
-            assert_eq!(leaderboard[0].ranked_losses, 0);
-            assert_eq!(leaderboard[1].ranked_wins, 0);
-            assert_eq!(leaderboard[1].ranked_losses, 1);
+            assert_eq!(leaderboard[0].1.ranked_wins, 1);
+            assert_eq!(leaderboard[0].1.ranked_losses, 0);
+            assert_eq!(leaderboard[1].1.ranked_wins, 0);
+            assert_eq!(leaderboard[1].1.ranked_losses, 1);
         }
 
         #[ink::test]
