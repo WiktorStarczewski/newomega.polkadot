@@ -1,0 +1,34 @@
+.Settings {
+    height: 100%;
+    background: url("../images/stars5.jpg") no-repeat center center;
+    background-size: cover;
+}
+
+.Settings .mainMenu {
+    color: white;
+}
+
+.Settings .qr {
+    width: 128px;
+    height: 128px;
+}
+
+.Settings .mnemonic {
+    margin-top: 1rem;
+}
+
+.Settings .address .guid {
+    user-select: all;
+}
+
+.Settings .mnemonic .mnemonic-content {
+    user-select: all;
+}
+
+.Settings .info {
+    margin-left: 1.5rem;
+    height: 128px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
