@@ -8,44 +8,49 @@ import App from './App';
 // });
 
 
+const BLOCK_LENGTH = 6000;
+
 const MNEMONIC = '';
 const { ContractFacade } = require('./facades/ContractFacade');
 const { Deployer } = require('./facades/Deployer');
 
 
-jest.setTimeout(1000000);
+jest.setTimeout(50000);
 
-test('Deploy', async () => {
-    const deployer = new Deployer();
-    await deployer.initialize();
+// test('Deploy', async () => {
+//     const deployer = new Deployer();
+//     await deployer.initialize();
 
-    return deployer.deployDelegator().then((contract) => {
-        expect(contract).toBeDefined();
-    });
+//     return deployer.deployDelegator().then((contract) => {
+//         expect(contract).toBeDefined();
+//     });
+// });
+
+test('Initialize', async () => {
+    const facade = new ContractFacade();
+    await facade.initialize(MNEMONIC);
+
+    expect(facade.api).toBeDefined();
+    expect(facade.keyring).toBeDefined();
+    expect(facade.alice).toBeDefined();
+    expect(facade.contracts).toBeDefined();
 });
 
-// test('Initialize', async () => {
-//     const facade = new ContractFacade();
-//     await facade.initialize(MNEMONIC);
+test('RegisterDefence', async () => {
+    const facade = new ContractFacade();
+    await facade.initialize(MNEMONIC);
 
-//     expect(facade.api).toBeDefined();
-//     expect(facade.keyring).toBeDefined();
-//     expect(facade.alice).toBeDefined();
-//     expect(facade.contracts).toBeDefined();
-// });
+    const selection = Uint8Array.from([10, 27, 43, 15]);
+    const variants = Uint8Array.from([0, 1, 0, 1]);
+    const commander = 0;
+    const name = 'TestAlice';
+    await facade.registerDefence(selection, variants, commander, name).catch(console.log);
+    await new Promise((r) => setTimeout(r, BLOCK_LENGTH));
 
-// test('RegisterDefence', async () => {
-//     const facade = new ContractFacade();
-//     await facade.initialize(MNEMONIC);
+    const defence = await facade.getOwnDefence();
 
-//     const selection = [10, 10, 10, 10];
-//     const variants = [0, 0, 0, 0];
-//     const commander = 0;
-//     const name = 'TestAlice';
-//     await facade.registerDefence(selection, variants, commander, name);
-
-//     // const defence = await facade.getOwnDefence();
-
-//     // expect(defence).toEqual([10, 10, 10, 10]);
-
-// });
+    expect(defence.selection).toEqual(selection);
+    expect(defence.variants).toEqual(variants);
+    expect(defence.commander).toEqual(commander);
+    expect(defence.name).toEqual(name);
+});

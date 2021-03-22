@@ -100,7 +100,7 @@ mod newomegadelegator {
                 .instantiate()
                 .expect("Failed instantiating NewOmegaRewarder");
 
-            /// Authorise the Ranked and Rewarder contracts to use the Storage contract
+            // Authorise the Ranked and Rewarder contracts to use the Storage contract
             new_omega_storage.authorise_contract(new_omega_ranked.to_account_id());
             new_omega_storage.authorise_contract(new_omega_rewarder.to_account_id());
 

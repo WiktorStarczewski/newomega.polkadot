@@ -1,12 +1,17 @@
 import _ from 'underscore';
 import { ContractPromise, CodePromise, BlueprintPromise } from '@polkadot/api-contract';
 import { blake2AsU8a, blake2AsHex } from '@polkadot/util-crypto';
+import { compactAddLength } from '@polkadot/util';
 import { ContractFacade } from './ContractFacade';
 
-const ENDOWMENT = 100000n;
+const ENDOWMENT = 100n;
 const GAS_LIMIT = 100000n * 10000000n;
+const BLOCK_LENGTH = 6000;
+
 
 const fs = require('fs');
+const util = require('util');
+const readFile = util.promisify(fs.readFile);
 
 export class Deployer {
     async initialize() {
@@ -30,55 +35,92 @@ export class Deployer {
 
     async deployInnerContract(contract) {
         const abi = require(this.getAbiFilename(contract));
+        const wasm = await readFile(this.getWasmFilename(contract));
+        const code = await new CodePromise(this.contractFacade.api, abi, wasm);
 
-        return new Promise((resolve, reject) => {
-            fs.readFile(this.getWasmFilename(contract), async (err, wasm) => {
-                const code = await new CodePromise(this.contractFacade.api, abi, wasm);
-                const codeHash = blake2AsHex(code.code);
-                resolve(codeHash);
-            });
-        });
+        const unsub = await this.contractFacade.api.tx.contracts
+            .instantiateWithCode(ENDOWMENT, GAS_LIMIT, compactAddLength(code.code), salt)
+            .signAndSend(this.contractFacade.alice);
+
+        return code.code;
     }
 
     deployDelegator() {
-        return new Promise((resolve, reject) => {
-            const allInners = ['newomega', 'newomegagame', 'newomegaranked',
-                'newomegarewarder', 'newomegastorage'];
+        return new Promise(async (resolve, reject) => {
             const hashes = {};
-            const promises = _.map(allInners, (innerContract) => {
-                return this.deployInnerContract(innerContract).then((codeHash) => {
-                    hashes[innerContract] = codeHash;
-                });
-            });
 
-            Promise.all(promises).then(() => {
-                const delegatorAbi = require('../ink/metadata.json');
+            hashes['newomega'] = await this.deployInnerContract('newomega');
 
-                fs.readFile(this.getWasmFilename('newomegadelegator', true), async (err, delegatorWasm) => {
-                    const code = await new CodePromise(this.contractFacade.api, delegatorAbi,
-                        delegatorWasm);
+            console.log('hashes.newomega ', blake2AsHex(hashes['newomega']));
+            await new Promise((r) => setTimeout(r, BLOCK_LENGTH));
 
-                    const codeHash = blake2AsHex(code.code);
-                    const blueprint = await new BlueprintPromise(this.contractFacade.api, delegatorAbi,
-                        codeHash);
+            hashes['newomegagame'] = await this.deployInnerContract('newomegagame');
 
-                    const unsub = await blueprint.tx
-                        .new(ENDOWMENT, GAS_LIMIT,
-                            0,
-                            hashes.newomega,
-                            hashes.newomegastorage,
-                            hashes.newomegagame,
-                            hashes.newomegaranked,
-                            hashes.newomegarewarder
-                        )
-                        .signAndSend(this.contractFacade.alice, (result) => {
-                            if (result.status.isInBlock || result.status.isFinalized) {
-                                console.log('Contract: ', result.contract);
-                                unsub();
-                                resolve(result.contract);
-                            }
-                        });
-                });
+            console.log('hashes.newomegagame ', blake2AsHex(hashes['newomegagame']));
+            await new Promise((r) => setTimeout(r, BLOCK_LENGTH));
+
+            hashes['newomegaranked'] = await this.deployInnerContract('newomegaranked');
+
+            console.log('hashes.newomegaranked ', blake2AsHex(hashes['newomegaranked']));
+            await new Promise((r) => setTimeout(r, BLOCK_LENGTH));
+
+            hashes['newomegarewarder'] = await this.deployInnerContract('newomegarewarder');
+
+            console.log('hashes.newomegarewarder ', blake2AsHex(hashes['newomegarewarder']));
+            await new Promise((r) => setTimeout(r, BLOCK_LENGTH));
+
+            hashes['newomegastorage'] = await this.deployInnerContract('newomegastorage');
+
+            console.log('hashes.newomegastorage ', blake2AsHex(hashes['newomegastorage']));
+            await new Promise((r) => setTimeout(r, BLOCK_LENGTH));
+
+            const delegatorAbi = require('../ink/metadata.json');
+
+            fs.readFile(this.getWasmFilename('newomegadelegator', true), async (err, delegatorWasm) => {
+                const code = await new CodePromise(this.contractFacade.api, delegatorAbi,
+                    delegatorWasm);
+                const codeResult = await this.contractFacade.api.tx.contracts
+                    .putCode(compactAddLength(code.code))
+                    .signAndSend(this.contractFacade.alice);
+                await new Promise((r) => setTimeout(r, BLOCK_LENGTH));
+
+                const codeHash = blake2AsHex(code.code);
+
+                console.log('codeResult ', codeResult);
+                console.log('hashes.newomegadelegator ', codeHash);
+
+                resolve(codeHash);
+
+
+// const tombstoneDeposit = await api.consts.contracts.tombstoneDeposit;
+//     let constructorExecutionGas = 29597086370000;
+//     let value = parseInt(tombstoneDeposit) * 10;
+//     const salt = Array.from({length: 5}, () => Math.floor(Math.random() * 32));
+//   -------- let params = {gasLimit: constructorExecutionGas, salt: salt, value: value};
+
+
+
+
+
+//                 const blueprint = await new BlueprintPromise(this.contractFacade.api, delegatorAbi,
+//                     codeHash);
+
+//                 const unsub = await blueprint.tx
+//                     .new(ENDOWMENT, GAS_LIMIT,
+//                         0,
+//                         blake2AsHex(hashes.newomega),
+//                         blake2AsHex(hashes.newomegastorage),
+//                         blake2AsHex(hashes.newomegagame),
+//                         blake2AsHex(hashes.newomegaranked),
+//                         blake2AsHex(hashes.newomegarewarder)
+//                     )
+//                     .signAndSend(this.contractFacade.alice, (result) => {
+//                         if (result.status.isInBlock || result.status.isFinalized) {
+//                             console.log('Contract: ', result.contract);
+// //                            unsub();
+//                             resolve(result.contract);
+//                         }
+//                     });
             });
         });
     }
