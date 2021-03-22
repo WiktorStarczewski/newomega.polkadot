@@ -1,7 +1,7 @@
 import './LoginScreen.css';
 import React from 'react';
 import _ from 'underscore';
-import { ethers } from 'ethers';
+import { mnemonicGenerate } from '@polkadot/util-crypto';
 
 
 // props.onDone
@@ -18,9 +18,9 @@ export class LoginScreen extends React.Component {
     signUp() {
         this.props.onDone({
             finisher: () => {
-                const wallet = ethers.Wallet.createRandom();
-                localStorage.setItem('OmegaMnemonic', wallet.mnemonic.phrase);
-                return wallet;
+                const mnemonic = mnemonicGenerate();
+                localStorage.setItem('OmegaMnemonic', mnemonic);
+                return mnemonic;
             },
         });
     }
@@ -32,9 +32,7 @@ export class LoginScreen extends React.Component {
     logIn(mnemonic) {
         this.props.onDone({
             finisher: () => {
-                const wallet = ethers.Wallet.fromMnemonic(mnemonic);
-                localStorage.setItem('OmegaMnemonic', wallet.mnemonic.phrase);
-                return wallet;
+                return mnemonic;
             },
         });
     }

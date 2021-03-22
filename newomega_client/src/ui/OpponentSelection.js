@@ -1,7 +1,6 @@
 import './OpponentSelection.css';
 import React from 'react';
 import _ from 'underscore';
-import { ethers } from 'ethers';
 
 
 // props.opponents, props.onDone
@@ -17,7 +16,7 @@ export const OpponentSelection = (props) => {
                 className="mainMenuItem"
                 onClick={() => { selectOpponent(opponent) }}
             >
-                {ethers.utils.parseBytes32String(opponent.name)}
+                {opponent.name}
             </div>
         );
     };

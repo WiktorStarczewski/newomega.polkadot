@@ -1,6 +1,6 @@
 import './App.css';
 import React, { Component } from 'react';
-import { ethers } from 'ethers';
+import { ContractFacade } from './facades/ContractFacade';
 import { ShipSelection } from './scenes/ShipSelection';
 import { CommanderSelection } from './scenes/CommanderSelection';
 import { Combat } from './scenes/Combat';
@@ -10,7 +10,6 @@ import { LoginScreen } from './ui/LoginScreen';
 import { ShowLogs } from './ui/ShowLogs';
 import { Settings } from './ui/Settings';
 import { Ships } from './definitions/Ships';
-import { FastJsonRpcProvider } from './common/FastProvider';
 import Snackbar from '@material-ui/core/Snackbar';
 import SettingsIcon from '@material-ui/icons/Settings';
 import _ from 'underscore';
@@ -32,11 +31,8 @@ const Modes = {
 };
 
 const TRAINING_SELECTION = [35, 25, 15, 10];
-const DEFAULT_INFURA_PROVIDER = 'ropsten';
-const DEFAULT_ELAETH_PROVIDER = 'http://api.elastos.io:21636';
-const DEFAULT_MATIC_PROVIDER = 'https://rpc-mumbai.matic.today';
-const INFURA_KEY = 'dbb5964e1c98437389d0c43ee39db58a';
-const CONTRACT_ADDRESS = '0xf6D65Ade19ec1a4F76410622689d1f21dc3D8ea5';
+const DEFAULT_VARIANTS = [0, 0, 0, 0];
+
 
 
 export default class OmegaApp extends Component {
@@ -54,6 +50,7 @@ export default class OmegaApp extends Component {
             trainingOpponentCommander: null,
             trainingCp: null,
             defenders: null,
+            leaderboard: null,
             settingDefence: false,
             settingAttack: false,
         };
@@ -62,7 +59,6 @@ export default class OmegaApp extends Component {
             mode: Modes.PlayingVideo,
             ownAccount: null,
             ethBalance: 0,
-            ethPrice: 0.0,
             blockNumber: 0,
             newOmegaContract: null,
             hasUnseenFights: false,
@@ -84,20 +80,6 @@ export default class OmegaApp extends Component {
         });
     }
 
-    componentDidMount() {
-        fetch(`https://data.messari.io/api/v1/assets/matic/metrics`)
-            .then((response) => response.json())
-            .then((data) => {
-                try {
-                    const ethPrice = parseFloat(_.property(['data', 'market_data', 'price_usd'])(data));
-                    this.setState({
-                        ethPrice,
-                    });
-                } catch (error) {
-                }
-            });
-    }
-
     async commanderSelectionDone(commander) {
         this.setState({
             loading: true,
@@ -105,13 +87,12 @@ export default class OmegaApp extends Component {
 
         if (this.state.settingDefence) {
             try {
-                const tx = await this.state.newOmegaContract.registerDefence(
+                await this.state.contractFacade.registerDefence(
                     this.state.trainingSelfSelection,
+                    DEFAULT_VARIANTS,
                     commander,
-                    ethers.utils.formatBytes32String(this.state.playerName)
+                    this.state.playerName
                 );
-
-                await tx.wait();
             } catch (error) {
                 this.setState({
                     toastOpen: true,
@@ -120,13 +101,12 @@ export default class OmegaApp extends Component {
             }
         } else if (this.state.settingAttack) {
             try {
-                const tx = await this.state.newOmegaContract.attack(
+                await this.state.contractFacade.attack(
                     this.state.trainingOpponent,
                     this.state.trainingSelfSelection,
+                    DEFAULT_VARIANTS,
                     commander
                 );
-
-                await tx.wait();
             } catch (error) {
                 this.setState({
                     toastOpen: true,
@@ -138,10 +118,12 @@ export default class OmegaApp extends Component {
             let result;
 
             try {
-                result = await this.state.newOmegaContract.replay(
+                result = await this.state.contractFacade.replay(
                     seed,
                     this.state.trainingSelfSelection,
+                    DEFAULT_VARIANTS,
                     this.state.trainingOpponentSelection,
+                    DEFAULT_VARIANTS,
                     commander,
                     this.state.trainingOpponentCommander
                 );
@@ -168,12 +150,12 @@ export default class OmegaApp extends Component {
     }
 
     opponentSelectionDone(opponent) {
-        const trainingOpponentSelection = opponent.defenceSelection;
+        const trainingOpponentSelection = opponent.selection;
 
         this.setState({
             mode: Modes.ShipSelection,
             settingAttack: true,
-            trainingOpponent: opponent.player,
+            trainingOpponent: opponent.address,
             trainingOpponentSelection,
             trainingOpponentCommander: opponent.commander,
             trainingCp: this._selectionToCp(trainingOpponentSelection),
@@ -218,12 +200,12 @@ export default class OmegaApp extends Component {
         let myDefence;
 
         try{
-            myDefence = await this.state.newOmegaContract.getOwnDefence();
+            myDefence = await this.state.contractFacade.getOwnDefence();
         } catch (error) {
         }
 
-        const trainingOpponentSelection = myDefence && myDefence.isInitialised
-            ? myDefence.defenceSelection
+        const trainingOpponentSelection = myDefence
+            ? myDefence.selection
             : TRAINING_SELECTION;
 
         this.setState({
@@ -236,42 +218,50 @@ export default class OmegaApp extends Component {
     }
 
     estimateUsdCost(gas) {
-        const oneGwei = 0.000000001;
-        return (gas * oneGwei * this.state.ethPrice).toFixed(6);
+        return 0;
+        // const oneGwei = 0.000000001;
+        // return (gas * oneGwei * this.state.ethPrice).toFixed(6);
     }
 
     etherToUsd(eth) {
-        try {
-            const ethFloat = parseFloat(eth);
-            return (ethFloat * this.state.ethPrice).toFixed(6);
-        } catch (error) {
-            return 0;
-        }
+        return 0;
+        // try {
+        //     const ethFloat = parseFloat(eth);
+        //     return (ethFloat * this.state.ethPrice).toFixed(6);
+        // } catch (error) {
+        //     return 0;
+        // }
     }
 
-    attachBlockchainEvents(provider, newOmegaContract, ownAccount) {
-        const filter = newOmegaContract.filters.FightComplete();
-        filter.attacker = ownAccount;
+    attachBlockchainEvents(facade) {
 
-        provider.on(filter, () => {
-            this.setState({
-                hasUnseenFights: true,
-            });
-        });
 
-        provider._newOmegaGasEstimated = (gas) => {
-            this.setState({
-                toastOpen: true,
-                toastContent: `Estimated gas: ${gas} ($${this.estimateUsdCost(gas)})`,
-            });
-        };
+        // TODO
 
-        provider.on('block', (blockNumber) => {
-            this._checkBalance(provider, ownAccount);
-            this.setState({
-                blockNumber,
-            });
-        });
+
+
+        // const filter = newOmegaContract.filters.FightComplete();
+        // filter.attacker = ownAccount;
+
+        // provider.on(filter, () => {
+        //     this.setState({
+        //         hasUnseenFights: true,
+        //     });
+        // });
+
+        // provider._newOmegaGasEstimated = (gas) => {
+        //     this.setState({
+        //         toastOpen: true,
+        //         toastContent: `Estimated gas: ${gas} ($${this.estimateUsdCost(gas)})`,
+        //     });
+        // };
+
+        // provider.on('block', (blockNumber) => {
+        //     this._checkBalance(provider, ownAccount);
+        //     this.setState({
+        //         blockNumber,
+        //     });
+        // });
     }
 
     onToastClose() {
@@ -397,7 +387,7 @@ export default class OmegaApp extends Component {
         let defenders;
 
         try {
-            defenders = await this.state.newOmegaContract.getAllDefenders();
+            defenders = await this.state.contractFacade.getAllDefenders();
         } catch (error) {
             return this.setState({
                 ...this.defaultLoadedState,
@@ -414,18 +404,13 @@ export default class OmegaApp extends Component {
     }
 
     async leaderboard() {
-        const filterAllLogs = this.state.newOmegaContract.filters.FightComplete();
-        filterAllLogs.fromBlock = this.state.provider.getBlockNumber().then((b) => b - 100000);
-        filterAllLogs.toBlock = 'latest';
-
         this.setState({
             loading: true,
         });
 
-        let logs;
-
+        let leaderboard;
         try {
-            logs = await this.state.provider.getLogs(filterAllLogs);
+            leaderboard = await this.contractFacade.getLeaderboard();
         } catch (error) {
             return this.setState({
                 ...this.defaultLoadedState,
@@ -434,26 +419,9 @@ export default class OmegaApp extends Component {
             });
         }
 
-        const logsParsed = _.map(logs, (log) => {
-            return this.state.newOmegaContract.interface.parseLog(log);
-        });
-
-        let defenders;
-
-        try {
-            defenders = await this.state.newOmegaContract.getAllDefenders();
-        } catch (error) {
-            return this.setState({
-                ...this.defaultLoadedState,
-                toastOpen: true,
-                toastContent: 'Transaction failed (Get All Defenders).',
-            });
-        }
-
         this.setState({
             mode: Modes.Leaderboard,
-            logs: logsParsed,
-            defenders,
+            leaderboard,
             loading: false,
         });
     }
@@ -463,9 +431,8 @@ export default class OmegaApp extends Component {
             loading: true,
         }, () => {
             _.defer(() => {
-                const provider = new FastJsonRpcProvider(DEFAULT_MATIC_PROVIDER);
-                const signer = options.finisher().connect(provider);
-                this._initWeb3(provider, signer);
+                const mnemonic = options.finisher();
+                this._initWeb3(mnemonic);
             });
         });
     }
@@ -576,8 +543,7 @@ export default class OmegaApp extends Component {
                         onCancel={this.genericCancelHandler.bind(this)}/>
                 }
                 {this.state.mode === Modes.Leaderboard &&
-                    <Leaderboard logs={this.state.logs}
-                        defenders={this.state.defenders}
+                    <Leaderboard leaderboard={this.state.leaderboard}
                         onCancel={this.genericCancelHandler.bind(this)}/>
                 }
                 <div
@@ -624,49 +590,30 @@ export default class OmegaApp extends Component {
         return parseFloat(balance, 10).toFixed(4).toString();
     }
 
-    async _initWeb3(provider, signer) {
-        // const provider = new TrinitySDK.Ethereum.Web3.Providers.TrinityWeb3Provider();
-        // provider = provider || new FastProvider(window.ethereum);
-        // signer = signer || provider.getSigner();
-
+    async _initWeb3(mnemonic) {
         this.setState({
             loading: true,
         });
 
-        let ownAccount;
-        if (!provider) {
-            const accounts = await window.ethereum.send('eth_requestAccounts');
-            ownAccount = accounts.result[0];
-        } else {
-            ownAccount = signer.address;
-        }
+        const facade = new ContractFacade();
+        await facade.initialize(mnemonic);
+        await this._checkBalance(facade);
 
-        await this._checkBalance(provider, ownAccount);
         this.setState({
-            provider,
-            ownAccount,
-            signer,
-        }, () => {
-            this._loadContracts(provider, signer, ownAccount);
-        });
-    }
-
-    async _checkBalance(provider, ownAccount) {
-        const ethBalance = await provider.getBalance(ownAccount);
-        this.setState({
-            ethBalance,
-        });
-    }
-
-    _loadContracts(provider, signer, ownAccount) {
-        const newOmegaJson = require('./abi/NewOmega.json');
-        const newOmegaContract = new ethers.Contract(CONTRACT_ADDRESS, newOmegaJson, signer);
-
-        this.attachBlockchainEvents(provider, newOmegaContract, ownAccount);
-        this.setState({
-            newOmegaContract,
+            contractFacade: facade,
             mode: Modes.MainScreen,
             loading: false,
+        });
+
+        this.attachBlockchainEvents(facade);
+    }
+
+    async _checkBalance(facade) {
+        // eslint-disable-next-line no-unused-vars
+        const { _nonce, data: balance } = await facade.api.query.system.account(facade.alice.address);
+
+        this.setState({
+            ethBalance: balance.free,
         });
     }
 }

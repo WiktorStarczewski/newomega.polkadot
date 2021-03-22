@@ -114,7 +114,6 @@ mod newomegaranked {
         /// * `defence` - The registered defence
         #[ink(message)]
         pub fn get_own_defence(&self, caller: AccountId) -> PlayerDefence {
-
             assert_eq!(self.env().caller(), self.owner);
             assert!(self.defences.get(&caller).is_some());
 
@@ -126,6 +125,22 @@ mod newomegaranked {
                 commander: defence.commander,
                 name: defence.name.clone(),
             }
+        }
+
+        /// Gets all the registered defenders (all players).
+        ///
+        /// # Returns
+        ///
+        /// * `defenders` - The registered defenders
+        #[ink(message)]
+        pub fn get_all_defenders(&self) -> Vec<(AccountId, PlayerDefence)> {
+            self.defences
+                .iter()
+                .filter_map(|entry| {
+                    let (&key, value) = entry;
+                    Some((key, value.clone()))
+                })
+                .collect()
         }
 
         /// Calculates a ranked fight between two players.
@@ -149,12 +164,12 @@ mod newomegaranked {
             assert!(self.defences.get(&caller).is_some());
             assert!(self.defences.get(&target).is_some());
 
-            /// Try to get the defence
+            // Try to get the defence
             let target_defence: &PlayerDefence = self.defences.get(&target).unwrap();
-            /// Determine the seed, in a naive way -> IMPROVEME: MOVE TO VRF
+            // Determine the seed, in a naive way -> IMPROVEME: MOVE TO VRF
             let seed: u64 = self.env().block_timestamp();
-            /// Calculate the fight result
-            let (result, lhs_moves, rhs_moves) =
+            // Calculate the fight result
+            let (result, _lhs_moves, _rhs_moves) =
                 self.new_omega_game.fight(
                     seed,
                     false,
@@ -165,7 +180,7 @@ mod newomegaranked {
                     commander,
                     target_defence.commander);
 
-            /// Mark results of the fight on the leaderboard and adjust commander xp
+            // Mark results of the fight on the leaderboard and adjust commander xp
             if result.lhs_dead {
                 self.new_omega_storage.mark_ranked_win(target);
                 self.new_omega_storage.mark_ranked_loss(caller);
@@ -178,7 +193,7 @@ mod newomegaranked {
                     commander, XP_PER_RANKED_WIN);
             }
 
-            /// Emit the event
+            // Emit the event
             self.env().emit_event(RankedFightComplete {
                 attacker: caller,
                 defender: target,

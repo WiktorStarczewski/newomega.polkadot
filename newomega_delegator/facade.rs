@@ -215,6 +215,16 @@ mod newomegadelegator {
             self.new_omega_ranked.get_own_defence(self.env().caller())
         }
 
+        /// Gets all the registered defenders (all players).
+        ///
+        /// # Returns
+        ///
+        /// * `defenders` - The registered defenders
+        #[ink(message)]
+        pub fn get_all_defenders(&self) -> Vec<(AccountId, PlayerDefence)> {
+            self.new_omega_ranked.get_all_defenders()
+        }
+
         /// Calculates a ranked fight between caller and another player.
         ///
         /// # Arguments
