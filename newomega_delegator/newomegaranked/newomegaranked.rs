@@ -60,15 +60,6 @@ mod newomegaranked {
         defences: StorageHashMap<AccountId, PlayerDefence>,
     }
 
-    #[ink(event)]
-    pub struct RankedFightComplete {
-        #[ink(topic)]
-        attacker: AccountId,
-        #[ink(topic)]
-        defender: AccountId,
-        result: FightResult,
-    }
-
     impl NewOmegaRanked {
         #[ink(constructor)]
         pub fn new(new_omega_game: NewOmegaGame, new_omega_storage: NewOmegaStorage) -> Self {
@@ -152,13 +143,9 @@ mod newomegaranked {
         /// * `selection` - Attacker fleet composition (array with ship quantities)
         /// * `variants` - An array that holds variants of the attacker fleet
         /// * `commander` - The attacker commander
-        ///
-        /// # Events
-        ///
-        /// * RankedFightComplete - when fight is complete
         #[ink(message)]
         pub fn attack(&mut self, caller: AccountId, target: AccountId, selection: [u8; MAX_SHIPS],
-            variants: [u8; MAX_SHIPS], commander: u8) {
+            variants: [u8; MAX_SHIPS], commander: u8) -> FightResult {
 
             assert_eq!(self.env().caller(), self.owner);
             assert!(self.defences.get(&caller).is_some());
@@ -193,12 +180,7 @@ mod newomegaranked {
                     commander, XP_PER_RANKED_WIN);
             }
 
-            // Emit the event
-            self.env().emit_event(RankedFightComplete {
-                attacker: caller,
-                defender: target,
-                result,
-            });
+            result
         }
     }
 }

@@ -10,6 +10,8 @@ import './Combat.css';
 
 const LASER_LENGTH_MS = 500;
 const SHOOT_GAP_MS = 500;
+const LHS_COLOR = Color3.Yellow();
+const RHS_COLOR = Color3.Green();
 
 // props: selectionLhs, selectionRhs, commanderLhs, commanderRhs, result
 export const Combat = (props) => {
@@ -19,8 +21,8 @@ export const Combat = (props) => {
     const [ resourcesLoaded, setResourcesLoaded ] = useState(false);
     const [ interrupt ] = useState({});
     const reactCanvas = useRef(null);
-    let shipMeshesLhs = [];
-    let shipMeshesRhs = [];
+    let shipMeshesLhs = [ [], [], [], [] ];
+    let shipMeshesRhs = [ [], [], [], [] ];
 
     const afterImportMeshes = (scene, newMeshes, currentShip,
         basePosition, count, direction, isLhs) => {
@@ -72,7 +74,7 @@ export const Combat = (props) => {
         return new Promise((resolve, reject) => {
             const assetsManager = new AssetsManager(scene);
 
-            _.each(props.selectionLhs, (count, index) => {
+            _.each(props.result.selection_lhs, (count, index) => {
                 if (count > 0) {
                     shipMeshesLhs[index] = [];
                     const task = assetsManager.addMeshTask(index, '',
@@ -84,7 +86,7 @@ export const Combat = (props) => {
                 }
             });
 
-            _.each(props.selectionRhs, (count, index) => {
+            _.each(props.result.selection_rhs, (count, index) => {
                 if (count > 0) {
                     shipMeshesRhs[index] = [];
                     const task = assetsManager.addMeshTask(index, '',
@@ -107,10 +109,10 @@ export const Combat = (props) => {
     const moveShips = (scene, move, isLhs) => {
         const meshes = isLhs ? shipMeshesLhs[move.source] : shipMeshesRhs[move.source];
         const alreadyThereLhs = _.filter(shipMeshesLhs, (meshes) => {
-            return meshes[0] && meshes[0].position.x === move.targetPosition;
+            return meshes[0] && meshes[0].position.x === move.target_position;
         });
         const alreadyThereRhs = _.filter(shipMeshesRhs, (meshes) => {
-            return meshes[0] && meshes[0].position.x === move.targetPosition;
+            return meshes[0] && meshes[0].position.x === move.target_position;
         });
         const alreadyThere = alreadyThereLhs.length + alreadyThereRhs.length;
 
@@ -131,7 +133,7 @@ export const Combat = (props) => {
 
         return Promise.all(_.map(meshes, (mesh) => {
             return new Promise((resolve/*, reject*/) => {
-                if (mesh.position.x === move.targetPosition) {
+                if (mesh.position.x === move.target_position) {
                     return resolve();
                 }
 
@@ -146,11 +148,11 @@ export const Combat = (props) => {
                     },
                     {
                         frame: framerate,
-                        value: mesh.position.x + Math.abs(move.targetPosition - mesh.position.x) * direction,
+                        value: mesh.position.x + Math.abs(move.target_position - mesh.position.x) * direction,
                     },
                     {
                         frame: 2*framerate,
-                        value: move.targetPosition,
+                        value: move.target_position,
                     }
                 ];
                 slide.setKeys(keyFrames);
@@ -190,16 +192,16 @@ export const Combat = (props) => {
             const meshToRemove = meshes.shift();
 
             // IMPROVEME only createasync once
-            ParticleHelper.CreateAsync('explosion', scene).then((set) => {
-                set.systems.forEach(s => {
-                    s.worldOffset = meshToRemove.position;
-                    s.disposeOnStop = true;
-                    s.maxSize = 0.01;
-                    s.minSize = 0.001;
-                });
-                set.systems = [ set.systems[0] ];
-                set.start();
-            });
+            // ParticleHelper.CreateAsync('explosion', scene).then((set) => {
+            //     set.systems.forEach(s => {
+            //         s.worldOffset = meshToRemove.position;
+            //         s.disposeOnStop = true;
+            //         s.maxSize = 0.01;
+            //         s.minSize = 0.001;
+            //     });
+            //     set.systems = [ set.systems[0] ];
+            //     set.start();
+            // });
 
             meshToRemove.dispose();
         }
@@ -220,10 +222,10 @@ export const Combat = (props) => {
         setCombatLog(localLog);
     };
 
-    const showLaser = (scene, source, sourceMesh, targetMesh) => {
+    const showLaser = (scene, source, sourceMesh, targetMesh, isLhs) => {
         const mat = new StandardMaterial('laserMat', scene);
-        mat.alpha = 0.8;
-        mat.diffuseColor = Ships[source].visuals.beamColor;
+        mat.alpha = 0.6;
+        mat.diffuseColor = isLhs ? LHS_COLOR : RHS_COLOR;
         mat.backFaceCulling = false;
 
         const lines = Mesh.CreateTube('laser', [
@@ -250,7 +252,7 @@ export const Combat = (props) => {
             const targetMeshIndex = ind % targetMeshes[move.target].length;
             const targetMesh = targetMeshes[move.target][targetMeshIndex];
 
-            showLaser(scene, move.source, sourceMesh, targetMesh);
+            showLaser(scene, move.source, sourceMesh, targetMesh, isLhs);
         });
     };
 
@@ -263,18 +265,21 @@ export const Combat = (props) => {
             });
         }
 
-        if (move.moveType === 2) {
-            movePromise = moveShips(scene, move, isLhs);
-        } else if (move.moveType === 1) {
-            movePromise = new Promise((resolve, reject) => {
-                showAttacks(scene, move, isLhs);
-                const shipHps = isLhs ? shipHpsRhs : shipHpsLhs;
-                shipHps[move.target] -= move.damage;
-                applyHpsToVisuals(scene, move.target, isLhs, shipHpsLhs,
-                    shipHpsRhs);
-                logAttack(move, isLhs);
+        movePromise = moveShips(scene, move, isLhs);
 
-                setTimeout(resolve, SHOOT_GAP_MS);
+
+        if (move.move_type === 1) {
+            movePromise = movePromise.then(() => {
+                return new Promise((resolve, reject) => {
+                    showAttacks(scene, move, isLhs);
+                    const shipHps = isLhs ? shipHpsRhs : shipHpsLhs;
+                    shipHps[move.target] -= move.damage;
+                    applyHpsToVisuals(scene, move.target, isLhs, shipHpsLhs,
+                        shipHpsRhs);
+                    logAttack(move, isLhs);
+
+                    setTimeout(resolve, SHOOT_GAP_MS);
+                });
             });
         }
 
@@ -290,15 +295,11 @@ export const Combat = (props) => {
                 return mainResolver();
             }
 
-            if (!lhsMove && !rhsMove) {
-                return mainResolver();
-            }
-
             const movePromiseLhs = playMove(scene, lhsMove, true, shipHpsLhs, shipHpsRhs);
             const movePromiseRhs = playMove(scene, rhsMove, false, shipHpsLhs, shipHpsRhs);
 
             Promise.all([movePromiseLhs, movePromiseRhs]).then(() => {
-                if (ind + 1 < lhsMoves.length) {
+                if (ind + 1 < Math.max(lhsMoves.length, rhsMoves.length)) {
                     _recursiveMover(ind + 1, mainResolver);
                 } else {
                     mainResolver();
@@ -312,8 +313,11 @@ export const Combat = (props) => {
     };
 
     const playRound = (scene, round, shipHpsLhs, shipHpsRhs) => { // recursive
+        console.log(props.result);
         if (round >= props.result.rounds) {
             setShowingResult(true);
+            console.log(shipHpsLhs);
+            console.log(shipHpsRhs);
             return;
         }
 
@@ -324,25 +328,39 @@ export const Combat = (props) => {
         setRound(round);
         logRoundStart(round);
 
-        const lhsMoves = _.filter(props.result.lhs, (move) => {
-            return move.round === round && move.moveType !== 0;
+        const lhsMoves = _.filter(props.result.lhs_moves, (move) => {
+            return move.round === round && move.move_type !== 0;
         });
-        const rhsMoves = _.filter(props.result.rhs, (move) => {
-            return move.round === round && move.moveType !== 0;
+        const rhsMoves = _.filter(props.result.rhs_moves, (move) => {
+            return move.round === round && move.move_type !== 0;
         });
 
-        playMoves(scene, lhsMoves, rhsMoves, shipHpsLhs, shipHpsRhs).then(() => {
+        const lhsMovesPadded = _.map(_.range(Ships.length), (shipIndex) => {
+            return _.findWhere(lhsMoves, {
+                source: shipIndex,
+            });
+        });
+
+        const rhsMovesPadded = _.map(_.range(Ships.length), (shipIndex) => {
+            return _.findWhere(rhsMoves, {
+                source: shipIndex,
+            });
+        });
+
+        playMoves(scene, lhsMovesPadded, rhsMovesPadded, shipHpsLhs, shipHpsRhs).then(() => {
             playRound(scene, round + 1, shipHpsLhs, shipHpsRhs);
         });
     };
 
     const playCombat = (scene) => {
-        const shipHpsLhs = _.map(props.selectionLhs, (count, index) => {
+        const shipHpsLhs = _.map(props.result.selection_lhs, (count, index) => {
             return Ships[index].stats.hp * count;
         });
-        const shipHpsRhs = _.map(props.selectionRhs, (count, index) => {
+        const shipHpsRhs = _.map(props.result.selection_rhs, (count, index) => {
             return Ships[index].stats.hp * count;
         });
+
+        debugger;
 
         playRound(scene, 0, shipHpsLhs, shipHpsRhs);
     };
@@ -374,17 +392,19 @@ export const Combat = (props) => {
     };
 
     const getWinnerString = () => {
-        if (props.result.lhsDead) {
+        if (props.result.lhs_dead) {
             return 'Defender Wins';
-        } else if (props.result.rhsDead) {
+        } else if (props.result.rhs_dead) {
             return 'Attacker Wins';
         } else {
             return 'Draw';
         }
     }
 
-    const commanderAssetLhs = Commanders[props.commanderLhs % Commanders.length].asset + 'thumb.png';
-    const commanderAssetRhs = Commanders[props.commanderRhs % Commanders.length].asset + 'thumb.png';
+    const commanderAssetLhs = Commanders[props.result.commander_lhs % Commanders.length].asset
+        + 'thumb.png';
+    const commanderAssetRhs = Commanders[props.result.commander_rhs % Commanders.length].asset
+        + 'thumb.png';
 
     useEffect(() => {
         if (reactCanvas.current) {

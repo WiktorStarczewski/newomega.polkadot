@@ -59,7 +59,7 @@ mod newomega {
         /// Target ship id, in the case of shoot
         target: u8,
         /// Position to move to, if needed
-        target_position: i8,
+        target_position: i16,
         /// Damage of the shot, if needed
         damage: u32
     }
@@ -135,7 +135,7 @@ mod newomega {
     pub fn prepare_ships() -> Vec<Ship> {
         let mut ships: Vec<Ship> = Vec::new();
 
-        /// Initialize default ships
+        // Initialize default ships
         ships.push(Ship {
             cp: 1,
             hp: 120,
@@ -301,24 +301,26 @@ mod newomega {
         ///     1. To be considered in range, target ship must be within range+speed from source ship
         ///     2. Targets are picked according to their size, ie bigger ships first
         fn get_target(&self, ships: &Vec<Ship>, current_ship: u8,
-            ship_positions_own: [i8; MAX_SHIPS], ship_positions_enemy: [i8; MAX_SHIPS],
+            ship_positions_own: [i16; MAX_SHIPS], ship_positions_enemy: [i16; MAX_SHIPS],
             ship_hps_enemy: [i32; MAX_SHIPS]) -> (bool, u8, u8) {
 
             let current_ship_usize:usize = current_ship as usize;
-            let position:i8 = ship_positions_own[current_ship_usize];
+            let position:i16 = ship_positions_own[current_ship_usize];
             let mut proposed_move:u8 = 0;
             let mut min_distance_index:u8 = MAX_SHIPS as u8;
 
             for enemy_ship in (0..MAX_SHIPS as u8).rev() {
                 let enemy_ship_usize:usize = enemy_ship as usize;
-                let delta:u8 = (position - ship_positions_enemy[enemy_ship_usize]).abs() as u8;
+
+                let position_diff:i16 = position as i16 - ship_positions_enemy[enemy_ship_usize] as i16;
+                let delta:u8 = position_diff.abs() as u8;
 
                 if (delta <= ships[current_ship_usize].range + ships[current_ship_usize].speed) &&
-                    ship_hps_enemy[current_ship_usize] > 0 {
+                    ship_hps_enemy[enemy_ship_usize] > 0 {
 
-                    /// We have found a target
+                    // We have found a target
                     min_distance_index = enemy_ship;
-                    /// Do we need to move?
+                    // Do we need to move?
                     if delta > ships[current_ship_usize].range {
                         proposed_move = delta - ships[current_ship_usize].range;
                     } else {
@@ -330,6 +332,15 @@ mod newomega {
             }
 
             (min_distance_index < (MAX_SHIPS as u8), min_distance_index, proposed_move)
+        }
+
+        fn get_number_of_ships_from_hp(&self, hp_total: u32, hp: u16) -> u16 {
+            let hp32: u32 = hp as u32;
+            if hp_total % hp32 == 0 {
+                (hp_total / hp32) as u16
+            } else {
+                (hp_total / hp32) as u16 + 1
+            }
         }
 
         /// Calculate damage done by a ship to another ship.
@@ -355,18 +366,10 @@ mod newomega {
             let target_usize: usize = target as usize;
             let attack: u16 = self.get_attack_stat(ships[source_usize].attack_base,
                 variants_source[source_usize]) + variables[source_usize];
-            let source_ships_count: u16 = (source_hp / ships[source_usize].hp as u32) as u16 + 1;
+            let source_ships_count: u16 = self.get_number_of_ships_from_hp(source_hp, ships[source_usize].hp);
             let cap_damage: u32 = (source_ships_count as u32) * (ships[target_usize].hp as u32);
-            let mut damage: u32 = (attack - self.get_defence_stat(ships[target_usize].defence, variants_target[target_usize])) as u32 *
-                (source_ships_count as u32);
-
-            /// Hard counter mechanic
-            /// Increase the damage +50% to smaller ships directly below the ship
-            if ((source as i8) - (target as i8) == 1) ||
-                (source == 0 && target == MAX_SHIPS as u8 - 1) {
-
-                damage *= damage / 2;
-            }
+            let defence: u16 = self.get_defence_stat(ships[target_usize].defence, variants_target[target_usize]);
+            let mut damage: u32 = (attack - defence) as u32 * (source_ships_count as u32);
 
             return self.min(self.max(0, damage as i32), cap_damage as i32) as u32;
         }
@@ -382,7 +385,7 @@ mod newomega {
         /// * `damage` - Damage inflicted
         /// * `position` - New ship position (can be unchanged)
         fn log_shoot(&self, round: u8, moves: &mut Vec<Move>,
-            source: u8, target: u8, damage: u32, position: i8) {
+            source: u8, target: u8, damage: u32, position: i16) {
 
             moves.push(Move {
                 move_type: 1,
@@ -405,7 +408,7 @@ mod newomega {
         /// * `damage` - Damage inflicted
         /// * `position` - New ship position (can be unchanged)
         fn log_move(&self, round: u8, moves: &mut Vec<Move>,
-            source: u8, target_position: i8) {
+            source: u8, target_position: i16) {
 
             moves.push(Move {
                 move_type: 2,
@@ -452,17 +455,17 @@ mod newomega {
             commander_lhs: u8, commander_rhs: u8) -> (FightResult, Option<Vec<Move>>,
                 Option<Vec<Move>>) {
 
-            /// Starting ship positions for both sides
-            let mut ship_positions_lhs: [i8; MAX_SHIPS] = [10, 11, 12, 13];
-            let mut ship_positions_rhs: [i8; MAX_SHIPS] = [-10, -11, -12, -13];
-            /// Current ship HPs, per ship type
+            // Starting ship positions for both sides
+            let mut ship_positions_lhs: [i16; MAX_SHIPS] = [10, 11, 12, 13];
+            let mut ship_positions_rhs: [i16; MAX_SHIPS] = [-10, -11, -12, -13];
+            // Current ship HPs, per ship type
             let mut ship_hps_lhs: [i32; MAX_SHIPS] = [0; MAX_SHIPS];
             let mut ship_hps_rhs: [i32; MAX_SHIPS] = [0; MAX_SHIPS];
-            /// Precalculated variable damage coefficients
+            // Precalculated variable damage coefficients
             let mut variables_lhs: [u16; MAX_SHIPS] = [0; MAX_SHIPS];
             let mut variables_rhs: [u16; MAX_SHIPS] = [0; MAX_SHIPS];
 
-            /// Precalculate the variables and initialize the ship HPs
+            // Precalculate the variables and initialize the ship HPs
             for i in 0..MAX_SHIPS {
                 ship_hps_lhs[i] = (ships[i].hp as i32) * (selection_lhs[i] as i32);
                 ship_hps_rhs[i] = (ships[i].hp as i32) * (selection_rhs[i] as i32);
@@ -474,13 +477,13 @@ mod newomega {
             let mut rhs_moves: Option<Vec<Move>> = None;
             let mut total_rounds: u8 = 0;
 
-            /// Only initialize the moves when required, to save gas
+            // Only initialize the moves when required, to save gas
             if log_moves {
                 lhs_moves = Some(Vec::new());
                 rhs_moves = Some(Vec::new());
             }
 
-            /// Loop intented to be broken out of if resolution is found quicker than MAX_ROUNDS
+            // Loop intented to be broken out of if resolution is found quicker than MAX_ROUNDS
             for round in 0..MAX_ROUNDS {
                 if self.is_dead(ship_hps_lhs) || self.is_dead(ship_hps_rhs) {
                     break;
@@ -489,7 +492,7 @@ mod newomega {
                 let round_u8: u8 = round as u8;
                 total_rounds = total_rounds + 1;
 
-                /// Loop through all the ships
+                // Loop through all the ships
                 for current_ship in 0..MAX_SHIPS {
                     let current_ship_u8: u8 = current_ship as u8;
                     let mut lhs_has_target: bool = false;
@@ -503,7 +506,7 @@ mod newomega {
                     let mut lhs_delta_move: u8 = 0;
                     let mut rhs_delta_move: u8 = 0;
 
-                    /// Note, moving and dealing damage to attacker is delayed until defender has moved also
+                    // Note, moving and dealing damage to attacker is delayed until defender has moved also
                     if !lhs_dead_ship {
                         (lhs_has_target, lhs_target, lhs_delta_move) = self.get_target(
                             &ships, current_ship_u8, ship_positions_lhs, ship_positions_rhs, ship_hps_rhs);
@@ -512,19 +515,19 @@ mod newomega {
                             lhs_damage = self.calculate_damage(variables_lhs, variants_lhs, variants_rhs,
                                 &ships, current_ship_u8, lhs_target, ship_hps_lhs[current_ship] as u32);
 
-                            /// Log the move, if required
+                            // Log the move, if required
                             match lhs_moves {
                                 Some(ref mut moves) =>
                                     self.log_shoot(round_u8, moves, current_ship_u8, lhs_target, lhs_damage,
-                                        ship_positions_lhs[current_ship] - (lhs_delta_move as i8)),
+                                        ship_positions_lhs[current_ship] - (lhs_delta_move as i16)),
                                 _ => ()
                             }
                         } else {
-                            /// Log the move, if required
+                            // Log the move, if required
                             match lhs_moves {
                                 Some(ref mut moves) =>
                                     self.log_move(round_u8, moves, current_ship_u8, ship_positions_lhs[current_ship] -
-                                        (ships[current_ship].speed as i8)),
+                                        (ships[current_ship].speed as i16)),
                                 _ => ()
                             }
                         }
@@ -538,11 +541,11 @@ mod newomega {
                             rhs_damage = self.calculate_damage(variables_rhs, variants_rhs, variants_lhs,
                                 &ships, current_ship_u8, rhs_target, ship_hps_rhs[current_ship] as u32);
 
-                            /// Move the ships, apply the damage
+                            // Move the ships, apply the damage
                             ship_hps_lhs[rhs_target as usize] -= rhs_damage as i32;
-                            ship_positions_rhs[current_ship] += rhs_delta_move as i8;
+                            ship_positions_rhs[current_ship] += rhs_delta_move as i16;
 
-                            /// Log the move, if required
+                            // Log the move, if required
                             match rhs_moves {
                                 Some(ref mut moves) =>
                                     self.log_shoot(round_u8, moves, current_ship_u8, rhs_target, rhs_damage,
@@ -550,10 +553,10 @@ mod newomega {
                                 _ => ()
                             }
                         } else {
-                            /// Move the ships
-                            ship_positions_rhs[current_ship] += ships[current_ship].speed as i8;
+                            // Move the ships
+                            ship_positions_rhs[current_ship] += ships[current_ship].speed as i16;
 
-                            /// Log the move, if required
+                            // Log the move, if required
                             match rhs_moves {
                                 Some(ref mut moves) =>
                                     self.log_move(round_u8, moves, current_ship_u8,
@@ -563,15 +566,15 @@ mod newomega {
                         }
                     }
 
-                    /// Now applying attacker moves
+                    ///Now applying attacker moves
                     if !lhs_dead_ship {
                         if lhs_has_target {
-                            /// Move the ships, apply the damage
+                            // Move the ships, apply the damage
                             ship_hps_rhs[lhs_target as usize] -= lhs_damage as i32;
-                            ship_positions_lhs[current_ship] -= lhs_delta_move as i8;
+                            ship_positions_lhs[current_ship] -= lhs_delta_move as i16;
                         } else {
-                            /// Move the ships
-                            ship_positions_lhs[current_ship] -= ships[current_ship].speed as i8;
+                            // Move the ships
+                            ship_positions_lhs[current_ship] -= ships[current_ship].speed as i16;
                         }
                     }
                 }
@@ -622,7 +625,7 @@ mod newomega {
             let ships: Vec<Ship> = prepare_ships();
             let seed: u64 = 1337;
             let log_moves: bool = true;
-            let selection_lhs: [u8; MAX_SHIPS] = [10, 10, 10, 10];
+            let selection_lhs: [u8; MAX_SHIPS] = [20, 20, 20, 20];
             let selection_rhs: [u8; MAX_SHIPS] = [5, 5, 5, 5];
             let variants_lhs: [u8; MAX_SHIPS] = [0, 1, 2, 0];
             let variants_rhs: [u8; MAX_SHIPS] = [1, 0, 1, 2];
@@ -649,7 +652,17 @@ mod newomega {
             let damage: u32 = contract.calculate_damage(variables, variants_source,
                 variants_target, &ships, source, target, source_hp);
 
-            assert_eq!(damage, 160);
+            let source_hp_damaged: u32 = source_hp - 1;
+            let damage_damaged: u32 = contract.calculate_damage(variables, variants_source,
+                variants_target, &ships, source, target, source_hp_damaged);
+
+            let source_hp_bigstack: u32 = source_hp * 32;
+            let damage_bigstack: u32 = contract.calculate_damage(variables, variants_source,
+                variants_target, &ships, source, target, source_hp_bigstack);
+
+            assert_eq!(damage, 80);
+            assert_eq!(damage_damaged, 80);
+            assert_eq!(damage_bigstack, 80 * 32);
         }
 
         #[test]

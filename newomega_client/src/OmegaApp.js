@@ -1,3 +1,6 @@
+import { hexToU8a, isHex, stringToU8a, stringToHex, compactAddLength } from '@polkadot/util';
+
+
 import './App.css';
 import React, { Component } from 'react';
 import { ContractFacade } from './facades/ContractFacade';
@@ -100,13 +103,28 @@ export default class OmegaApp extends Component {
                 });
             }
         } else if (this.state.settingAttack) {
+            let result;
             try {
-                await this.state.contractFacade.attack(
+                result = await this.state.contractFacade.attack(
                     this.state.trainingOpponent,
                     this.state.trainingSelfSelection,
                     DEFAULT_VARIANTS,
                     commander
                 );
+
+                debugger;
+
+                result = result.toHuman();
+                const event = _.find(result.events, (event) => {
+                    return event.event.method === 'ContractEmitted';
+                });
+
+                debugger;
+
+                console.log(hexToU8a(event.event.data[1]));
+                debugger;
+                // unpack event data
+
             } catch (error) {
                 this.setState({
                     toastOpen: true,
@@ -121,8 +139,8 @@ export default class OmegaApp extends Component {
                 result = await this.state.contractFacade.replay(
                     seed,
                     this.state.trainingSelfSelection,
-                    DEFAULT_VARIANTS,
                     this.state.trainingOpponentSelection,
+                    DEFAULT_VARIANTS,
                     DEFAULT_VARIANTS,
                     commander,
                     this.state.trainingOpponentCommander
@@ -272,57 +290,59 @@ export default class OmegaApp extends Component {
     }
 
     async showLogs() {
-        const filterAttacker = this.state.newOmegaContract.filters.FightComplete();
-        filterAttacker.fromBlock = this.state.provider.getBlockNumber().then((b) => b - 100000);
-        filterAttacker.toBlock = 'latest';
-        filterAttacker.attacker = this.state.ownAccount;
+        const logs = this.state.contractFacade.getRankedFightCompleteEvents();
 
-        const filterDefender = this.state.newOmegaContract.filters.FightComplete();
-        filterAttacker.fromBlock = this.state.provider.getBlockNumber().then((b) => b - 100000);
-        filterAttacker.toBlock = 'latest';
-        filterAttacker.defender = this.state.ownAccount;
+        // const filterAttacker = this.state.newOmegaContract.filters.FightComplete();
+        // filterAttacker.fromBlock = this.state.provider.getBlockNumber().then((b) => b - 100000);
+        // filterAttacker.toBlock = 'latest';
+        // filterAttacker.attacker = this.state.ownAccount;
 
-        this.setState({
-            loading: true,
-        });
+        // const filterDefender = this.state.newOmegaContract.filters.FightComplete();
+        // filterAttacker.fromBlock = this.state.provider.getBlockNumber().then((b) => b - 100000);
+        // filterAttacker.toBlock = 'latest';
+        // filterAttacker.defender = this.state.ownAccount;
 
-        let logsAttacker, logsDefender;
+        // this.setState({
+        //     loading: true,
+        // });
 
-        try {
-            logsAttacker = await this.state.provider.getLogs(filterAttacker);
-            logsDefender = await this.state.provider.getLogs(filterDefender);
-        } catch (error) {
-            return this.setState({
-                ...this.defaultLoadedState,
-                toastOpen: true,
-                toastContent: 'Transaction failed (Get Logs).',
-            });
-        }
+        // let logsAttacker, logsDefender;
 
-        const logs = logsAttacker.concat(logsDefender);
-        const logsParsed = _.map(logs, (log) => {
-            return this.state.newOmegaContract.interface.parseLog(log);
-        });
+        // try {
+        //     logsAttacker = await this.state.provider.getLogs(filterAttacker);
+        //     logsDefender = await this.state.provider.getLogs(filterDefender);
+        // } catch (error) {
+        //     return this.setState({
+        //         ...this.defaultLoadedState,
+        //         toastOpen: true,
+        //         toastContent: 'Transaction failed (Get Logs).',
+        //     });
+        // }
 
-        let defenders;
+        // const logs = logsAttacker.concat(logsDefender);
+        // const logsParsed = _.map(logs, (log) => {
+        //     return this.state.newOmegaContract.interface.parseLog(log);
+        // });
 
-        try {
-            defenders = await this.state.newOmegaContract.getAllDefenders();
-        } catch (error) {
-            return this.setState({
-                ...this.defaultLoadedState,
-                toastOpen: true,
-                toastContent: 'Transaction failed (Get All Defenders).',
-            });
-        }
+        // let defenders;
 
-        this.setState({
-            mode: Modes.ShowLogs,
-            logs: logsParsed,
-            loading: false,
-            hasUnseenFights: false,
-            defenders,
-        });
+        // try {
+        //     defenders = await this.state.newOmegaContract.getAllDefenders();
+        // } catch (error) {
+        //     return this.setState({
+        //         ...this.defaultLoadedState,
+        //         toastOpen: true,
+        //         toastContent: 'Transaction failed (Get All Defenders).',
+        //     });
+        // }
+
+        // this.setState({
+        //     mode: Modes.ShowLogs,
+        //     logs: logsParsed,
+        //     loading: false,
+        //     hasUnseenFights: false,
+        //     defenders,
+        // });
     }
 
     async logSelectionDone(log) {
@@ -339,6 +359,8 @@ export default class OmegaApp extends Component {
                 metaResult.seed,
                 metaResult.selectionLhs,
                 metaResult.selectionRhs,
+                DEFAULT_VARIANTS,
+                DEFAULT_VARIANTS,
                 metaResult.commanderLhs,
                 metaResult.commanderRhs);
         } catch (error) {
@@ -410,7 +432,7 @@ export default class OmegaApp extends Component {
 
         let leaderboard;
         try {
-            leaderboard = await this.contractFacade.getLeaderboard();
+            leaderboard = await this.state.contractFacade.getLeaderboard();
         } catch (error) {
             return this.setState({
                 ...this.defaultLoadedState,
@@ -455,7 +477,7 @@ export default class OmegaApp extends Component {
 
     render() {
         const logsClassName = `mainMenuItem ${this.state.hasUnseenFights ? 'unread' : ''}`;
-        const ethBalanceString = this._formatBalance(ethers.utils.formatEther(this.state.ethBalance));
+        const ethBalanceString = this._formatBalance(this.state.ethBalance);
 
         return (
             <div className="App">
@@ -494,17 +516,17 @@ export default class OmegaApp extends Component {
                             </div>
                         </div>
                         <div className="versionBox uiElement bottomElement">
-                            Version: 0.0.1 (c) celrisen.eth
+                            Version: 1.0.0-DOT (c) celrisen.eth
                         </div>
                         <div className="ethBalance uiElement bottomElement">
-                            MATIC: {ethBalanceString} (${this.etherToUsd(ethBalanceString)}) | Network: Matic Ethereum (Testnet) | Block: {this.state.blockNumber}
+                            DOT: {ethBalanceString} (${this.etherToUsd(ethBalanceString)}) | Network: Polkadot | Block: {this.state.blockNumber}
                         </div>
                     </div>
                 }
                 {this.state.mode === Modes.Settings &&
                     <Settings onDone={() => { this.setState(this.defaultLoadedState) }}
-                        address={this.state.ownAccount} balance={ethBalanceString}
-                        mnemonic={this.state.signer && this.state.signer.mnemonic.phrase}
+                        address={this.state.contractFacade.alice.address} balance={ethBalanceString}
+                        mnemonic={this.state.contractFacade.alice.mnemonic}
                         onCancel={this.genericCancelHandler.bind(this)}/>
                 }
                 {this.state.mode === Modes.ShipSelection &&

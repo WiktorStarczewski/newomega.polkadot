@@ -1,7 +1,6 @@
 import './ShowLogs.css';
 import React from 'react';
 import _ from 'underscore';
-import { ethers } from 'ethers';
 
 
 // props.opponents, logs, props.onDone
@@ -15,7 +14,7 @@ export const ShowLogs = (props) => {
             player: address,
         });
         return opponent
-            ? ethers.utils.parseBytes32String(opponent.name)
+            ? opponent.name
             : 'Anonymous';
     }
 

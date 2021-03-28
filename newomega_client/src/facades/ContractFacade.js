@@ -7,7 +7,7 @@ import _ from 'underscore';
 
 
 const RPC_PROVIDER = 'ws://127.0.0.1:9944'; // wss://rpc.polkadot.io
-const DELEGATOR_CONTRACT_ADDRESS = '5GM8tFEynFkrhDrSJNvvMFBDcFNN4Ks7E4UM7rBZDXcVsTuB';
+const DELEGATOR_CONTRACT_ADDRESS = '5CGnwU4hpx2qXxxt2vr7Phg3Zch5YKMkq7kzyi2j1iojq5oX';
 const GAS_LIMIT = -1;//30000n * 1000000n;
 
 
@@ -15,7 +15,7 @@ export class ContractFacade {
     async initialize(mnemonic) {
         this.api = await this.getApi();
         this.keyring = new Keyring({ type: 'sr25519' });
-        this.alice = this.keyring.addFromUri(mnemonic, { name: 'Alice' });
+        this.alice = this.keyring.addFromUri(mnemonic, { name: 'NewOmega' });
         this.contracts = {
             delegator: this.getDelegator(),
         };
@@ -48,15 +48,15 @@ export class ContractFacade {
     async registerDefence(selection, variants, commander, name) {
         return this.contracts.delegator.tx
             .registerDefence({ value: 0, gasLimit: GAS_LIMIT },
-                selection,
-                variants,
+                Uint8Array.from(selection),
+                Uint8Array.from(variants),
                 commander,
                 name)
             .signAndSend(this.alice);
     }
 
     async getOwnDefence() {
-        return new Promise(async resolve => {
+        return new Promise(async (resolve, reject) => {
             //eslint-disable-next-line no-unused-vars
             const { _gasConsumed, result, output } =
                 await this.contracts.delegator.query
@@ -70,7 +70,7 @@ export class ContractFacade {
 
                 resolve(defence);
             } else {
-                resolve(result.asErr);
+                reject(result.asErr);
             }
         });
     }
@@ -102,13 +102,19 @@ export class ContractFacade {
     }
 
     async attack(target, selection, variants, commander) {
-        return this.contracts.delegator.tx
-            .attack({ value: 0, gasLimit: GAS_LIMIT },
-                target,
-                selection,
-                variants,
-                commander)
-            .signAndSend(this.alice);
+        return new Promise(async resolve => {
+            this.contracts.delegator.tx
+                .attack({ value: 0, gasLimit: GAS_LIMIT },
+                    target,
+                    Uint8Array.from(selection),
+                    Uint8Array.from(variants),
+                    commander)
+                .signAndSend(this.alice, (result) => {
+                    if (result.status.isInBlock || result.status.isFinalized) {
+                        resolve(result);
+                    }
+                });
+        });
     }
 
     async getLeaderboard() {
@@ -120,11 +126,15 @@ export class ContractFacade {
 
             if (result.isOk) {
                 const leaderboard = output && output.toHuman();
-                _.each(leaderboard, (entry) => {
-                    entry[1].ranked_wins = parseInt(entry[1].ranked_wins, 10);
-                    entry[1].ranked_losses = parseInt(entry[1].ranked_losses, 10);
+                const leaderboardParsed = _.map(leaderboard, (entry) => {
+                    return {
+                        address: entry[0],
+                        ranked_wins: parseInt(entry[1].ranked_wins, 10),
+                        ranked_losses: parseInt(entry[1].ranked_losses, 10),
+                    }
                 });
-                resolve(leaderboard);
+
+                resolve(leaderboardParsed);
             } else {
                 resolve(result.asErr);
             }
@@ -140,10 +150,10 @@ export class ContractFacade {
                 await this.contracts.delegator.query
                     .replay(this.alice.address, { value: 0, gasLimit: GAS_LIMIT },
                         seed,
-                        selectionLhs,
-                        selectionRhs,
-                        variantsLhs,
-                        variantsRhs,
+                        Uint8Array.from(selectionLhs),
+                        Uint8Array.from(selectionRhs),
+                        Uint8Array.from(variantsLhs),
+                        Uint8Array.from(variantsRhs),
                         commanderLhs,
                         commanderRhs
                     );
@@ -187,5 +197,47 @@ export class ContractFacade {
                 resolve(result.asErr);
             }
         });
+    }
+
+    async getRankedFightCompleteEvents() {
+        const lastHdr = await this.api.rpc.chain.getHeader();
+        const startHdr = await this.api.rpc.chain.getBlockHash(0); // TODO smarter delta
+        const events = await this.api.query.system.events.range([startHdr]);
+
+        events.forEach((record) => {
+            const { event, phase } = record;
+            debugger;
+        });
+
+        events.forEach(([hash, values]) => {
+            const hashHex = hash.toHex();
+
+            _.each(values, (value) => {
+                const event = value.event.toHuman();
+                if (event.method === 'ContractEmitted') {
+                    console.log(event.data[1]);
+                }
+            })
+        });
+
+//         events.forEach((record) => {
+//             const { event, phase } = record;
+//             const types = event.typeDef;
+
+// // Show what we are busy with
+//           console.log(
+//             `\t${event.section}:${event.method}:: (phase=${phase.toString()})`
+//           );
+//           console.log(`\t\t${event.meta.documentation.toString()}`);
+
+//           // Loop through each of the parameters, displaying the type and data
+//           event.data.forEach((data, index) => {
+//             console.log(`\t\t\t${types[index].type}: ${data.toString()}`);
+//           });
+//         });
+
+        // _.each(events, (event) => {
+        //     console.log(event[1][0].event.method);
+        // });
     }
 }

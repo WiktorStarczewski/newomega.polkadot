@@ -44,6 +44,15 @@ mod newomegadelegator {
         new_omega_rewarder: Lazy<NewOmegaRewarder>,
     }
 
+    #[ink(event)]
+    pub struct RankedFightComplete {
+        #[ink(topic)]
+        attacker: AccountId,
+        #[ink(topic)]
+        defender: AccountId,
+        result: FightResult,
+    }
+
     const LOOT_CRATE_PRICE: u128 = 1;
 
     impl NewOmegaDelegator {
@@ -242,7 +251,14 @@ mod newomegadelegator {
             variants: [u8; MAX_SHIPS], commander: u8) {
 
             let caller: AccountId = self.env().caller();
-            self.new_omega_ranked.attack(caller, target, selection, variants, commander);
+            let result: FightResult = self.new_omega_ranked.attack(
+                caller, target, selection, variants, commander);
+
+            self.env().emit_event(RankedFightComplete {
+                attacker: caller,
+                defender: target,
+                result,
+            });
         }
 
         /// Gets the current ranked leaderboard.

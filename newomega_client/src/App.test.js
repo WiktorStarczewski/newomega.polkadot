@@ -105,7 +105,11 @@ test('Attack', async () => {
     const variants = Uint8Array.from([1, 0, 1, 1]);
     const commander = 0;
 
-    await facadeAlice.attack(facadeBob.alice.address, selection, variants, commander);
+    const attackResult = await facadeAlice.attack(facadeBob.alice.address, selection, variants, commander);
+    expect(attackResult.events.length).toEqual(2);
+
+    console.log('## ', attackResult.events);
+
     await new Promise((r) => setTimeout(r, BLOCK_LENGTH));
 
     const leaderboardPost = await facadeAlice.getLeaderboard();

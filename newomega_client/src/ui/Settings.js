@@ -1,7 +1,6 @@
 import './Settings.css';
 import React, { useState } from 'react';
 import _ from 'underscore';
-import { ethers } from 'ethers';
 import Snackbar from '@material-ui/core/Snackbar';
 import QRCode from 'react-qr-code';
 
@@ -38,13 +37,13 @@ export const Settings = (props) => {
                     </div>
                     <div className="info" onClick={copyAddressToClipboard}>
                         <div className="network">
-                            Network: Matic Ethereum Mumbai (Testnet)
+                            Network: Polkadot
                         </div>
                         <div className="address">
                             Address: <span className="guid">{props.address}</span>
                         </div>
                         <div className="balance">
-                            MATIC Balance: {props.balance}
+                            Balance: {props.balance}
                         </div>
                         <div className="mnemonic">
                             Mnemonic: <span className="mnemonic-content">{props.mnemonic}</span>

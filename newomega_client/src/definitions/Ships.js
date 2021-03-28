@@ -1,5 +1,6 @@
 import { Color3, Vector3 } from '@babylonjs/core';
 
+
 export const Ships = [
     {
         name: 'Hunter',
@@ -7,12 +8,12 @@ export const Ships = [
         description: 'Cheap, quick and agile, the Hunter can be used as a quick strike weapon, able to reach enemy lines quickest. Can not withstand much heat though.',
         stats: {
             cp: 1,
-            hp: 100,
+            hp: 120,
             attack: {
-                base: 60,
-                variable: 10,
+                base: 80,
+                variable: 20,
             },
-            defence: 2,
+            defence: 20,
             speed: 4,
             range: 4,
         },
@@ -29,14 +30,14 @@ export const Ships = [
         description: 'As lightest of the heavier ships, the Scorpio retains some of the speed and maneuverability of the frigate while offering big improvements in the hull and weaponry.',
         stats: {
             cp: 3,
-            hp: 180,
+            hp: 150,
             attack: {
-                base: 100,
+                base: 65,
                 variable: 20,
             },
-            defence: 12,
+            defence: 30,
             speed: 3,
-            range: 6,
+            range: 8,
         },
         scale: 1400,
         combatScale: 0.6,
@@ -52,14 +53,14 @@ export const Ships = [
         description: 'The Zeneca is an effective killing machine, providing both active support and serving as an artillery line raining heavy damage on enemy ships.',
         stats: {
             cp: 4,
-            hp: 200,
+            hp: 220,
             attack: {
-                base: 90,
-                variable: 30,
+                base: 65,
+                variable: 20,
             },
-            defence: 15,
+            defence: 35,
             speed: 2,
-            range: 6,
+            range: 15,
         },
         scale: 400,
         combatScale: 0.8,
@@ -76,14 +77,14 @@ export const Ships = [
         description: 'Fitted with state of the art weaponry and protection, the Luminaris is the ultimate fighting force in the galaxy.',
         stats: {
             cp: 10,
-            hp: 340,
+            hp: 450,
             attack: {
-                base: 70,
-                variable: 50,
+                base: 80,
+                variable: 20,
             },
-            defence: 20,
+            defence: 40,
             speed: 1,
-            range: 8,
+            range: 30,
         },
         scale: 120,
         combatScale: 0.8,
