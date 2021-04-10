@@ -48,8 +48,8 @@ export class ContractFacade {
     async registerDefence(selection, variants, commander, name) {
         return this.contracts.delegator.tx
             .registerDefence({ value: 0, gasLimit: GAS_LIMIT },
-                Uint8Array.from(selection),
-                Uint8Array.from(variants),
+                this.ensureUint8Array(selection),
+                this.ensureUint8Array(variants),
                 commander,
                 name)
             .signAndSend(this.alice);
@@ -64,8 +64,8 @@ export class ContractFacade {
 
             if (result.isOk) {
                 const defence = output && output.toHuman();
-                defence.selection = Uint8Array.from(hexToU8a(defence.selection));
-                defence.variants = Uint8Array.from(hexToU8a(defence.variants));
+                defence.selection = Array.from(Uint8Array.from(hexToU8a(defence.selection)));
+                defence.variants = Array.from(Uint8Array.from(hexToU8a(defence.variants)));
                 defence.commander = parseInt(defence.commander, 10);
 
                 resolve(defence);
@@ -87,8 +87,8 @@ export class ContractFacade {
                 const defendersParsed = _.map(defenders, (defender) => {
                     return {
                         address: defender[0],
-                        selection: Uint8Array.from(hexToU8a(defender[1].selection)),
-                        variants: Uint8Array.from(hexToU8a(defender[1].variants)),
+                        selection: Array.from(Uint8Array.from(hexToU8a(defender[1].selection))),
+                        variants: Array.from(Uint8Array.from(hexToU8a(defender[1].variants))),
                         commander: parseInt(defender[1].commander, 10),
                         name: defender[1].name,
                     };
@@ -101,17 +101,28 @@ export class ContractFacade {
         });
     }
 
+    ensureUint8Array(obj) {
+        return obj instanceof Uint8Array
+            ? obj
+            : Uint8Array.from(obj);
+    }
+
     async attack(target, selection, variants, commander) {
+        selection = this.ensureUint8Array(selection);
+        variants = this.ensureUint8Array(variants);
+
         return new Promise(async resolve => {
             this.contracts.delegator.tx
                 .attack({ value: 0, gasLimit: GAS_LIMIT },
                     target,
-                    Uint8Array.from(selection),
-                    Uint8Array.from(variants),
+                    selection,
+                    variants,
                     commander)
                 .signAndSend(this.alice, (result) => {
                     if (result.status.isInBlock || result.status.isFinalized) {
-                        resolve(result);
+                        const event = result.contractEvents && result.contractEvents[0];
+                        const resultMap = event && event.args && event.args[2];
+                        resolve(resultMap);
                     }
                 });
         });
@@ -150,10 +161,10 @@ export class ContractFacade {
                 await this.contracts.delegator.query
                     .replay(this.alice.address, { value: 0, gasLimit: GAS_LIMIT },
                         seed,
-                        Uint8Array.from(selectionLhs),
-                        Uint8Array.from(selectionRhs),
-                        Uint8Array.from(variantsLhs),
-                        Uint8Array.from(variantsRhs),
+                        this.ensureUint8Array(selectionLhs),
+                        this.ensureUint8Array(selectionRhs),
+                        this.ensureUint8Array(variantsLhs),
+                        this.ensureUint8Array(variantsRhs),
                         commanderLhs,
                         commanderRhs
                     );
@@ -165,12 +176,12 @@ export class ContractFacade {
                     rhs_moves: output[2].unwrap().toHuman(),
                 };
 
-                fightResult.selection_lhs = Uint8Array.from(hexToU8a(fightResult.selection_lhs));
-                fightResult.selection_rhs = Uint8Array.from(hexToU8a(fightResult.selection_rhs));
-                fightResult.variants_lhs = Uint8Array.from(hexToU8a(fightResult.variants_lhs));
-                fightResult.variants_rhs = Uint8Array.from(hexToU8a(fightResult.variants_rhs));
-                fightResult.ships_lost_lhs = Uint8Array.from(hexToU8a(fightResult.ships_lost_lhs));
-                fightResult.ships_lost_rhs = Uint8Array.from(hexToU8a(fightResult.ships_lost_rhs));
+                fightResult.selection_lhs = Array.from(Uint8Array.from(hexToU8a(fightResult.selection_lhs)));
+                fightResult.selection_rhs = Array.from(Uint8Array.from(hexToU8a(fightResult.selection_rhs)));
+                fightResult.variants_lhs = Array.from(Uint8Array.from(hexToU8a(fightResult.variants_lhs)));
+                fightResult.variants_rhs = Array.from(Uint8Array.from(hexToU8a(fightResult.variants_rhs)));
+                fightResult.ships_lost_lhs = Array.from(Uint8Array.from(hexToU8a(fightResult.ships_lost_lhs)));
+                fightResult.ships_lost_rhs = Array.from(Uint8Array.from(hexToU8a(fightResult.ships_lost_rhs)));
                 fightResult.commander_lhs = parseInt(fightResult.commander_lhs, 10);
                 fightResult.commander_rhs = parseInt(fightResult.commander_rhs, 10);
                 fightResult.rounds = parseInt(fightResult.rounds, 10);
@@ -180,7 +191,7 @@ export class ContractFacade {
                     _.each(['move_type', 'round', 'source',
                         'target', 'target_position', 'damage'], (prop) => {
 
-                        move[prop] = parseInt(move[prop], 10);
+                        move[prop] = parseInt(move[prop].replaceAll(',', '').replaceAll('.', ''), 10);
                     });
                 });
 
@@ -188,7 +199,7 @@ export class ContractFacade {
                     _.each(['move_type', 'round', 'source',
                         'target', 'target_position', 'damage'], (prop) => {
 
-                        move[prop] = parseInt(move[prop], 10);
+                        move[prop] = parseInt(move[prop].replaceAll(',', '').replaceAll('.', ''), 10);
                     });
                 });
 
@@ -200,14 +211,13 @@ export class ContractFacade {
     }
 
     async getRankedFightCompleteEvents() {
+        console.log(this.contracts.delegator.query);
+
         const lastHdr = await this.api.rpc.chain.getHeader();
         const startHdr = await this.api.rpc.chain.getBlockHash(0); // TODO smarter delta
-        const events = await this.api.query.system.events.range([startHdr]);
+        const events = await this.contracts.delegator.api.query.system.events.range([startHdr]);
 
-        events.forEach((record) => {
-            const { event, phase } = record;
-            debugger;
-        });
+        debugger;
 
         events.forEach(([hash, values]) => {
             const hashHex = hash.toHex();
@@ -215,7 +225,8 @@ export class ContractFacade {
             _.each(values, (value) => {
                 const event = value.event.toHuman();
                 if (event.method === 'ContractEmitted') {
-                    console.log(event.data[1]);
+                    console.log(event.data[1], value);
+                    debugger;
                 }
             })
         });

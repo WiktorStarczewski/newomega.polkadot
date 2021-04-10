@@ -10,7 +10,6 @@ import { Combat } from './scenes/Combat';
 import { OpponentSelection } from './ui/OpponentSelection';
 import { Leaderboard } from './ui/Leaderboard';
 import { LoginScreen } from './ui/LoginScreen';
-import { ShowLogs } from './ui/ShowLogs';
 import { Settings } from './ui/Settings';
 import { Ships } from './definitions/Ships';
 import Snackbar from '@material-ui/core/Snackbar';
@@ -28,9 +27,8 @@ const Modes = {
     CommanderPreview: 5,
     Combat: 6,
     OpponentSelection: 7,
-    ShowLogs: 8,
-    Leaderboard: 9,
-    Settings: 10,
+    Leaderboard: 8,
+    Settings: 9,
 };
 
 const TRAINING_SELECTION = [35, 25, 15, 10];
@@ -112,19 +110,7 @@ export default class OmegaApp extends Component {
                     commander
                 );
 
-                debugger;
-
-                result = result.toHuman();
-                const event = _.find(result.events, (event) => {
-                    return event.event.method === 'ContractEmitted';
-                });
-
-                debugger;
-
-                console.log(hexToU8a(event.event.data[1]));
-                debugger;
-                // unpack event data
-
+                return this.replayFightResult(result);
             } catch (error) {
                 this.setState({
                     toastOpen: true,
@@ -235,22 +221,6 @@ export default class OmegaApp extends Component {
         });
     }
 
-    estimateUsdCost(gas) {
-        return 0;
-        // const oneGwei = 0.000000001;
-        // return (gas * oneGwei * this.state.ethPrice).toFixed(6);
-    }
-
-    etherToUsd(eth) {
-        return 0;
-        // try {
-        //     const ethFloat = parseFloat(eth);
-        //     return (ethFloat * this.state.ethPrice).toFixed(6);
-        // } catch (error) {
-        //     return 0;
-        // }
-    }
-
     attachBlockchainEvents(facade) {
 
 
@@ -289,65 +259,7 @@ export default class OmegaApp extends Component {
         });
     }
 
-    async showLogs() {
-        const logs = this.state.contractFacade.getRankedFightCompleteEvents();
-
-        // const filterAttacker = this.state.newOmegaContract.filters.FightComplete();
-        // filterAttacker.fromBlock = this.state.provider.getBlockNumber().then((b) => b - 100000);
-        // filterAttacker.toBlock = 'latest';
-        // filterAttacker.attacker = this.state.ownAccount;
-
-        // const filterDefender = this.state.newOmegaContract.filters.FightComplete();
-        // filterAttacker.fromBlock = this.state.provider.getBlockNumber().then((b) => b - 100000);
-        // filterAttacker.toBlock = 'latest';
-        // filterAttacker.defender = this.state.ownAccount;
-
-        // this.setState({
-        //     loading: true,
-        // });
-
-        // let logsAttacker, logsDefender;
-
-        // try {
-        //     logsAttacker = await this.state.provider.getLogs(filterAttacker);
-        //     logsDefender = await this.state.provider.getLogs(filterDefender);
-        // } catch (error) {
-        //     return this.setState({
-        //         ...this.defaultLoadedState,
-        //         toastOpen: true,
-        //         toastContent: 'Transaction failed (Get Logs).',
-        //     });
-        // }
-
-        // const logs = logsAttacker.concat(logsDefender);
-        // const logsParsed = _.map(logs, (log) => {
-        //     return this.state.newOmegaContract.interface.parseLog(log);
-        // });
-
-        // let defenders;
-
-        // try {
-        //     defenders = await this.state.newOmegaContract.getAllDefenders();
-        // } catch (error) {
-        //     return this.setState({
-        //         ...this.defaultLoadedState,
-        //         toastOpen: true,
-        //         toastContent: 'Transaction failed (Get All Defenders).',
-        //     });
-        // }
-
-        // this.setState({
-        //     mode: Modes.ShowLogs,
-        //     logs: logsParsed,
-        //     loading: false,
-        //     hasUnseenFights: false,
-        //     defenders,
-        // });
-    }
-
-    async logSelectionDone(log) {
-        const metaResult = log.args[2];
-
+    async replayFightResult(metaResult) {
         this.setState({
             loading: true,
         });
@@ -355,15 +267,16 @@ export default class OmegaApp extends Component {
         let result;
 
         try {
-            result = await this.state.newOmegaContract.replay(
+            result = await this.state.contractFacade.replay(
                 metaResult.seed,
-                metaResult.selectionLhs,
-                metaResult.selectionRhs,
-                DEFAULT_VARIANTS,
-                DEFAULT_VARIANTS,
-                metaResult.commanderLhs,
-                metaResult.commanderRhs);
+                metaResult.selection_lhs,
+                metaResult.selection_rhs,
+                metaResult.variants_lhs,
+                metaResult.variants_rhs,
+                metaResult.commander_lhs,
+                metaResult.commander_rhs);
         } catch (error) {
+            console.log(error);
             return this.setState({
                 ...this.defaultLoadedState,
                 toastOpen: true,
@@ -371,32 +284,13 @@ export default class OmegaApp extends Component {
             });
         }
 
-        const _parseHp = (hp) => {
-            return _.map(hp, (hpInst) => {
-                return hpInst.toNumber();
-            });
-        }
-
-        const resultJson = {
-            lhs: result.lhs,
-            rhs: result.rhs,
-            lhsHp: _parseHp(result.lhsHp),
-            rhsHp: _parseHp(result.rhsHp),
-            rounds: result.rounds,
-            selectionLhs: result.selectionLhs,
-            selectionRhs: result.selectionRhs,
-            commanderLhs: result.commanderLhs,
-            commanderRhs: result.commanderRhs,
-            lhsDead: result.lhsDead,
-            rhsDead: result.rhsDead,
-        };
-
         this.setState({
             mode: Modes.Combat,
-            trainingSelfSelection: resultJson.selectionLhs,
-            trainingSelfCommander: resultJson.commanderLhs,
-            trainingOpponentSelection: resultJson.selectionRhs,
-            trainingResult: resultJson,
+            trainingSelfSelection: result.selection_lhs,
+            trainingSelfCommander: result.commander_lhs,
+            trainingOpponentSelection: result.selection_rhs,
+            trainingOpponentCommander: result.commander_rhs,
+            trainingResult: result,
             loading: false,
         });
     }
@@ -476,7 +370,6 @@ export default class OmegaApp extends Component {
     }
 
     render() {
-        const logsClassName = `mainMenuItem ${this.state.hasUnseenFights ? 'unread' : ''}`;
         const ethBalanceString = this._formatBalance(this.state.ethBalance);
 
         return (
@@ -502,9 +395,6 @@ export default class OmegaApp extends Component {
                             <div className="mainMenuItem" onClick={this.commanders.bind(this)}>
                                 ACADEMY
                             </div>
-                            <div className={logsClassName} onClick={this.showLogs.bind(this)}>
-                                LOGS
-                            </div>
                             <div className="mainMenuItem" onClick={this.defend.bind(this)}>
                                 DEFENCE
                             </div>
@@ -519,7 +409,7 @@ export default class OmegaApp extends Component {
                             Version: 1.0.0-DOT (c) celrisen.eth
                         </div>
                         <div className="ethBalance uiElement bottomElement">
-                            DOT: {ethBalanceString} (${this.etherToUsd(ethBalanceString)}) | Network: Polkadot | Block: {this.state.blockNumber}
+                            Balance: {ethBalanceString} | Network: Polkadot (Local)
                         </div>
                     </div>
                 }
@@ -557,12 +447,6 @@ export default class OmegaApp extends Component {
                         onDone={this.opponentSelectionDone.bind(this)}
                         onCancel={this.genericCancelHandler.bind(this)}
                     />
-                }
-                {this.state.mode === Modes.ShowLogs &&
-                    <ShowLogs logs={this.state.logs}
-                        opponents={this.state.defenders}
-                        onDone={this.logSelectionDone.bind(this)}
-                        onCancel={this.genericCancelHandler.bind(this)}/>
                 }
                 {this.state.mode === Modes.Leaderboard &&
                     <Leaderboard leaderboard={this.state.leaderboard}
@@ -609,7 +493,7 @@ export default class OmegaApp extends Component {
     }
 
     _formatBalance(balance) {
-        return parseFloat(balance, 10).toFixed(4).toString();
+        return parseFloat(balance, 10).toFixed(0).toString();
     }
 
     async _initWeb3(mnemonic) {

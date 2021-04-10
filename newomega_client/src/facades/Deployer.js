@@ -90,37 +90,6 @@ export class Deployer {
                 console.log('hashes.newomegadelegator ', codeHash);
 
                 resolve(codeHash);
-
-
-// const tombstoneDeposit = await api.consts.contracts.tombstoneDeposit;
-//     let constructorExecutionGas = 29597086370000;
-//     let value = parseInt(tombstoneDeposit) * 10;
-//     const salt = Array.from({length: 5}, () => Math.floor(Math.random() * 32));
-//   -------- let params = {gasLimit: constructorExecutionGas, salt: salt, value: value};
-
-
-
-
-
-//                 const blueprint = await new BlueprintPromise(this.contractFacade.api, delegatorAbi,
-//                     codeHash);
-
-//                 const unsub = await blueprint.tx
-//                     .new(ENDOWMENT, GAS_LIMIT,
-//                         0,
-//                         blake2AsHex(hashes.newomega),
-//                         blake2AsHex(hashes.newomegastorage),
-//                         blake2AsHex(hashes.newomegagame),
-//                         blake2AsHex(hashes.newomegaranked),
-//                         blake2AsHex(hashes.newomegarewarder)
-//                     )
-//                     .signAndSend(this.contractFacade.alice, (result) => {
-//                         if (result.status.isInBlock || result.status.isFinalized) {
-//                             console.log('Contract: ', result.contract);
-// //                            unsub();
-//                             resolve(result.contract);
-//                         }
-//                     });
             });
         });
     }

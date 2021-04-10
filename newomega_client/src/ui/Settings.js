@@ -46,7 +46,7 @@ export const Settings = (props) => {
                             Balance: {props.balance}
                         </div>
                         <div className="mnemonic">
-                            Mnemonic: <span className="mnemonic-content">{props.mnemonic}</span>
+                            Mnemonic: <span className="mnemonic-content">{localStorage.getItem('OmegaMnemonic')}</span>
                         </div>
                     </div>
                 </div>

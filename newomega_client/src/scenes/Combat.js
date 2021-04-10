@@ -267,7 +267,6 @@ export const Combat = (props) => {
 
         movePromise = moveShips(scene, move, isLhs);
 
-
         if (move.move_type === 1) {
             movePromise = movePromise.then(() => {
                 return new Promise((resolve, reject) => {
@@ -313,11 +312,8 @@ export const Combat = (props) => {
     };
 
     const playRound = (scene, round, shipHpsLhs, shipHpsRhs) => { // recursive
-        console.log(props.result);
         if (round >= props.result.rounds) {
             setShowingResult(true);
-            console.log(shipHpsLhs);
-            console.log(shipHpsRhs);
             return;
         }
 
@@ -359,8 +355,6 @@ export const Combat = (props) => {
         const shipHpsRhs = _.map(props.result.selection_rhs, (count, index) => {
             return Ships[index].stats.hp * count;
         });
-
-        debugger;
 
         playRound(scene, 0, shipHpsLhs, shipHpsRhs);
     };
