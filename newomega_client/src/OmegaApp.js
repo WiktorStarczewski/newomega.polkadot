@@ -1,6 +1,3 @@
-import { hexToU8a, isHex, stringToU8a, stringToHex, compactAddLength } from '@polkadot/util';
-
-
 import './App.css';
 import React, { Component } from 'react';
 import { ContractFacade } from './facades/ContractFacade';
@@ -12,12 +9,15 @@ import { Leaderboard } from './ui/Leaderboard';
 import { LoginScreen } from './ui/LoginScreen';
 import { Settings } from './ui/Settings';
 import { Ships } from './definitions/Ships';
+import { OmegaDefaults } from './definitions/OmegaDefaults';
 import Snackbar from '@material-ui/core/Snackbar';
 import SettingsIcon from '@material-ui/icons/Settings';
 import _ from 'underscore';
 
 
-
+/**
+ * Enumerates all modes the game can be in.
+ */
 const Modes = {
     PlayingVideo: 0,
     LoginScreen: 1,
@@ -31,7 +31,14 @@ const Modes = {
     Settings: 9,
 };
 
+/**
+ * Default fleet selection to train against
+ */
 const TRAINING_SELECTION = [35, 25, 15, 10];
+
+/**
+ * Variants of the default fleet selection to train against
+ */
 const DEFAULT_VARIANTS = [0, 0, 0, 0];
 
 
@@ -74,6 +81,10 @@ export default class OmegaApp extends Component {
         };
     }
 
+    /**
+     * Handler for the ship selection done action.
+     * Moves to the commander selection stage.
+     */
     shipSelectionDone(selection) {
         this.setState({
             mode: Modes.CommanderSelection,
@@ -81,6 +92,11 @@ export default class OmegaApp extends Component {
         });
     }
 
+    /**
+     * Handler for the commander selection done action.
+     * Follows up with the original action that triggered
+     * the commander selection.
+     */
     async commanderSelectionDone(commander) {
         this.setState({
             loading: true,
@@ -149,10 +165,18 @@ export default class OmegaApp extends Component {
         this.setState(this.defaultLoadedState);
     }
 
+    /**
+     * Handler for the commander preview done action.
+     * Returns to the main menu.
+     */
     commanderPreviewDone() {
         this.setState(this.defaultLoadedState);
     }
 
+    /**
+     * Handler for the opponent selection done action.
+     * Moves to the ship selection stage.
+     */
     opponentSelectionDone(opponent) {
         const trainingOpponentSelection = opponent.selection;
 
@@ -166,12 +190,18 @@ export default class OmegaApp extends Component {
         });
     }
 
+    /**
+     * Internal function to get the CP of a fleet.
+     */
     _selectionToCp(selection) {
         return _.reduce(selection, (memo, num, index) => {
             return memo + (num || 0) * Ships[index].stats.cp;
         }, 0);
     }
 
+    /**
+     * Handler for the player name change action.
+     */
     handlePlayerNameChange(e) {
         window.localStorage.setItem('OmegaPlayerName', e.target.value);
         this.setState({
@@ -179,6 +209,10 @@ export default class OmegaApp extends Component {
         });
     }
 
+    /**
+     * Handler for the training action.
+     * Moves to the ship selection stage.
+     */
     training() {
         const trainingOpponentSelection = TRAINING_SELECTION;
 
@@ -190,12 +224,20 @@ export default class OmegaApp extends Component {
         });
     }
 
+    /**
+     * Handler for the commanders action.
+     * Moves to the commander preview screen.
+     */
     commanders() {
         this.setState({
             mode: Modes.CommanderPreview,
         });
     }
 
+    /**
+     * Handler for the register defence action.
+     * Moves to the ship selection stage.
+     */
     async defend() {
         this.setState({
             loading: true,
@@ -221,37 +263,9 @@ export default class OmegaApp extends Component {
         });
     }
 
-    attachBlockchainEvents(facade) {
-
-
-        // TODO
-
-
-
-        // const filter = newOmegaContract.filters.FightComplete();
-        // filter.attacker = ownAccount;
-
-        // provider.on(filter, () => {
-        //     this.setState({
-        //         hasUnseenFights: true,
-        //     });
-        // });
-
-        // provider._newOmegaGasEstimated = (gas) => {
-        //     this.setState({
-        //         toastOpen: true,
-        //         toastContent: `Estimated gas: ${gas} ($${this.estimateUsdCost(gas)})`,
-        //     });
-        // };
-
-        // provider.on('block', (blockNumber) => {
-        //     this._checkBalance(provider, ownAccount);
-        //     this.setState({
-        //         blockNumber,
-        //     });
-        // });
-    }
-
+    /**
+     * Closes all open toasts.
+     */
     onToastClose() {
         this.setState({
             toastOpen: false,
@@ -259,6 +273,10 @@ export default class OmegaApp extends Component {
         });
     }
 
+    /**
+     * Replays a fight result.
+     * Accepts the result and opens a Combat screen.
+     */
     async replayFightResult(metaResult) {
         this.setState({
             loading: true,
@@ -295,6 +313,10 @@ export default class OmegaApp extends Component {
         });
     }
 
+    /**
+     * Handler for the attack action.
+     * Moves to the opponent selection stage.
+     */
     async attack() {
         this.setState({
             loading: true,
@@ -319,6 +341,10 @@ export default class OmegaApp extends Component {
         });
     }
 
+    /**
+     * Handler for the leaderboard action.
+     * Opens the leaderboard screen.
+     */
     async leaderboard() {
         this.setState({
             loading: true,
@@ -342,6 +368,10 @@ export default class OmegaApp extends Component {
         });
     }
 
+    /**
+     * Handler for the login done action.
+     * Starts the Web3 initialization process.
+     */
     onLoginDone(options) {
         this.setState({
             loading: true,
@@ -353,22 +383,37 @@ export default class OmegaApp extends Component {
         });
     }
 
+    /**
+     * Handler for the show settings action.
+     * Opens the settings screen.
+     */
     showSettings() {
         this.setState({
             mode: Modes.Settings,
         });
     }
 
+    /**
+     * Generic cancel handler.
+     * Returns to Main Menu.
+     */
     genericCancelHandler() {
         this.setState(this.defaultLoadedState);
     }
 
+    /**
+     * Handler for the intro video playback complete.
+     * Opens the login screen.
+     */
     introVideoComplete() {
         this.setState({
             mode: Modes.LoginScreen,
         });
     }
 
+    /**
+     * Main renderer.
+     */
     render() {
         const ethBalanceString = this._formatBalance(this.state.ethBalance);
 
@@ -406,10 +451,10 @@ export default class OmegaApp extends Component {
                             </div>
                         </div>
                         <div className="versionBox uiElement bottomElement">
-                            Version: 1.0.0-DOT (c) celrisen.eth
+                            {OmegaDefaults.VERSION_STRING}
                         </div>
                         <div className="ethBalance uiElement bottomElement">
-                            Balance: {ethBalanceString} | Network: Polkadot (Local)
+                            Balance: {ethBalanceString} | Network: {OmegaDefaults.NETWORK}
                         </div>
                     </div>
                 }
@@ -492,10 +537,17 @@ export default class OmegaApp extends Component {
         );
     }
 
+    /**
+     * Formats a DOT balance.
+     */
     _formatBalance(balance) {
         return parseFloat(balance, 10).toFixed(0).toString();
     }
 
+    /**
+     * Initializes Web3 environment from a mnemonic.
+     * Moves to the main screen stage.
+     */
     async _initWeb3(mnemonic) {
         this.setState({
             loading: true,
@@ -510,10 +562,11 @@ export default class OmegaApp extends Component {
             mode: Modes.MainScreen,
             loading: false,
         });
-
-        this.attachBlockchainEvents(facade);
     }
 
+    /**
+     * Checks balance for current account.
+     */
     async _checkBalance(facade) {
         // eslint-disable-next-line no-unused-vars
         const { _nonce, data: balance } = await facade.api.query.system.account(facade.alice.address);

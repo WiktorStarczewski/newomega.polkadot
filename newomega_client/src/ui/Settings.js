@@ -1,30 +1,30 @@
 import './Settings.css';
 import React, { useState } from 'react';
-import _ from 'underscore';
+import { OmegaDefaults } from '../definitions/OmegaDefaults';
 import Snackbar from '@material-ui/core/Snackbar';
 import QRCode from 'react-qr-code';
 
 
-// props.onDone, props.address, props.balance, props.mnemonic
 export const Settings = (props) => {
     const [toastOpen, setToastOpen] = useState(false);
 
-    const onTopup = () => {
-        window.open(`https://faucet.matic.network/`, '_blank');
-        props.onDone();
-    }
-
+    /**
+     * Copies the address to clipboard.
+     */
     const copyAddressToClipboard = () => {
         navigator.clipboard.writeText(props.address).then(() => {
             setToastOpen(true);
         });
     }
 
+    /**
+     * Handler for closing toasts.
+     */
     const onToastClose = () => {
         setToastOpen(false);
     }
 
-    const qrCodeValue = `ethereum:${props.address}`;
+    const qrCodeValue = `${props.address}`;
 
     return (
         <div className="Settings">
@@ -37,7 +37,7 @@ export const Settings = (props) => {
                     </div>
                     <div className="info" onClick={copyAddressToClipboard}>
                         <div className="network">
-                            Network: Polkadot
+                            Network: {OmegaDefaults.NETWORK}
                         </div>
                         <div className="address">
                             Address: <span className="guid">{props.address}</span>
@@ -50,11 +50,8 @@ export const Settings = (props) => {
                         </div>
                     </div>
                 </div>
-                <div className="uiElement cancelBox bottomBox" onClick={props.onCancel}>
+                <div className="uiElement doneBox bottomBox" onClick={props.onCancel}>
                     BACK
-                </div>
-                <div className="uiElement doneBox bottomBox" onClick={onTopup}>
-                    TOP UP
                 </div>
             </div>
             <Snackbar

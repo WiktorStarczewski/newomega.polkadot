@@ -17,6 +17,10 @@ export const CommanderSelection = (props) => {
     const [ resourcesLoaded, setResourcesLoaded ] = useState(false);
     const reactCanvas = useRef(null);
 
+    /**
+     * Handler for the next commander action.
+     * Loads the next commander into the view.
+     */
     const nextCommander = () => {
         const newCommander = currentCommander + 1;
         const newCommanderSafe = newCommander >= Commanders.length ? 0 : newCommander;
@@ -24,6 +28,10 @@ export const CommanderSelection = (props) => {
         loadCurrentCommander(newCommanderSafe, scene);
     };
 
+    /**
+     * Handler for the previous commander action.
+     * Loads the previous commander into the view.
+     */
     const prevCommander = () => {
         const newCommander = currentCommander - 1;
         const newCommanderSafe = newCommander < 0 ? Commanders.length - 1 : newCommander;
@@ -31,10 +39,18 @@ export const CommanderSelection = (props) => {
         loadCurrentCommander(newCommanderSafe, scene);
     };
 
+    /**
+     * Handler for the next commander action.
+     * Loads the next commander into the view.
+     */
     const onDone = () => {
         props.onDone(currentCommander);
     };
 
+    /**
+     * Handler for the commander mesh loaded.
+     * Performs positioning and scaling of the models.
+     */
     const afterLoadCommander = (scene, newMeshes, commanderIndex) => {
         newMeshes[0].position = Commanders[commanderIndex].visuals.positionOffset ||
             Vector3.Zero();
@@ -44,6 +60,10 @@ export const CommanderSelection = (props) => {
         newMeshes[0].isVisible = false;
     }
 
+    /**
+     * Loads all the assets, most notably models, to the scene.
+     * Fetches a model for each commander in parallel.
+     */
     const loadResources = (scene) => {
         return new Promise((resolve, reject) => {
             const loadedMeshes = [];
@@ -68,6 +88,10 @@ export const CommanderSelection = (props) => {
         });
     };
 
+    /**
+     * Hides all other commanders from the scene except for the currently
+     * selected one.
+     */
     const loadCurrentCommander = (currentCommander, scene, loadedMeshesOverride) => {
         const meshes = loadedMeshesOverride || loadedMeshes;
 
@@ -84,6 +108,11 @@ export const CommanderSelection = (props) => {
         }), 'play', true);
     };
 
+    /**
+     * Handler for the Babylon scene mounted event.
+     * Sets up the scene, camera, light, background, rotations,
+     * and loads the resources.
+     */
     const onSceneMount = (canvas, scene) => {
         setScene(scene);
 
@@ -116,19 +145,7 @@ export const CommanderSelection = (props) => {
         });
     };
 
-    const commanderRarityColor = CommanderRaritiesColors[Commanders[currentCommander].rarity];
-    const commanderRarityString = commanderRarityToString(Commanders[currentCommander].rarity);
-
-    const commanderAttackSuffix = _.has(Commanders[currentCommander].stats.attack, 'vs')
-        ? ` vs ${Ships[Commanders[currentCommander].stats.attack.vs].name}`
-        : '';
-    const commanderAttackString = `+${Commanders[currentCommander].stats.attack.modifier}${commanderAttackSuffix}`;
-
-    const commanderDefenceSuffix = _.has(Commanders[currentCommander].stats.defence, 'vs')
-        ? ` vs ${Ships[Commanders[currentCommander].stats.defence.vs].name}`
-        : '';
-    const commanderDefenceString = `+${Commanders[currentCommander].stats.defence.modifier}${commanderDefenceSuffix}`;
-
+    // Set up the Babylon canvas and start loading the scene.
     useEffect(() => {
         if (reactCanvas.current) {
             const engine = new Engine(reactCanvas.current, true, null, true);
@@ -160,6 +177,19 @@ export const CommanderSelection = (props) => {
             }
         }
     }, [reactCanvas]);
+
+    // Display strings
+    const commanderRarityColor = CommanderRaritiesColors[Commanders[currentCommander].rarity];
+    const commanderRarityString = commanderRarityToString(Commanders[currentCommander].rarity);
+    const commanderAttackSuffix = _.has(Commanders[currentCommander].stats.attack, 'vs')
+        ? ` vs ${Ships[Commanders[currentCommander].stats.attack.vs].name}`
+        : '';
+    const commanderAttackString = `+${Commanders[currentCommander].stats.attack.modifier}${commanderAttackSuffix}`;
+    const commanderDefenceSuffix = _.has(Commanders[currentCommander].stats.defence, 'vs')
+        ? ` vs ${Ships[Commanders[currentCommander].stats.defence.vs].name}`
+        : '';
+    const commanderDefenceString = `+${Commanders[currentCommander].stats.defence.modifier}${commanderDefenceSuffix}`;
+
 
     return (
         <div className="CommanderSelection">

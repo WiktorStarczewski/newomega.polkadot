@@ -3,12 +3,18 @@ import React from 'react';
 import _ from 'underscore';
 
 
-// props.opponents, props.onDone
 export const OpponentSelection = (props) => {
+    /**
+     * Handler for selecting the opponent.
+     * Fires a onDone callback passed in via props.
+     */
     const selectOpponent = (opponent) => {
         props.onDone(opponent);
     };
 
+    /**
+     * Renders one row of opponent information.
+     */
     const renderOpponent = (opponent, ind) => {
         return (
             <div

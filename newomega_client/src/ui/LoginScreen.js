@@ -2,9 +2,9 @@ import './LoginScreen.css';
 import React from 'react';
 import _ from 'underscore';
 import { mnemonicGenerate } from '@polkadot/util-crypto';
+import { OmegaDefaults } from '../definitions/OmegaDefaults';
 
 
-// props.onDone
 export class LoginScreen extends React.Component {
     constructor(props) {
         super(props);
@@ -15,6 +15,10 @@ export class LoginScreen extends React.Component {
         };
     }
 
+    /**
+     * Handler for the sign up action.
+     * Generates a mnemonic and stores it in local storage.
+     */
     signUp() {
         this.props.onDone({
             finisher: () => {
@@ -25,10 +29,16 @@ export class LoginScreen extends React.Component {
         });
     }
 
+    /**
+     * Performs a login from mnemonic.
+     */
     logInFromMnemonic() {
         this.logIn(this.state.mnemonic);
     }
 
+    /**
+     * Finishes the login flow, returning the mnemonic.
+     */
     logIn(mnemonic) {
         this.props.onDone({
             finisher: () => {
@@ -45,12 +55,18 @@ export class LoginScreen extends React.Component {
         }
     }
 
+    /**
+     * Handler for the mnemonic input changed.
+     */
     mnemonicInputChanged(e) {
         this.setState({
             mnemonic: e.target.value,
         });
     }
 
+    /**
+     * Enters the visual state of putting in the mnemonic.
+     */
     startMnemonicInput() {
         this.setState({
             enteringMnemonic: true,
@@ -88,7 +104,7 @@ export class LoginScreen extends React.Component {
                         </div>
                     }
                     <div className="versionBox uiElement bottomElement">
-                        Version: 0.0.1 (c) celrisen.eth
+                        {OmegaDefaults.VERSION_STRING}
                     </div>
                 </div>
             </div>

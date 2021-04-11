@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import _ from 'underscore';
-import { Engine, Scene, Vector3, Color3, Mesh, AssetsManager, StandardMaterial, ParticleHelper, Layer,
+import { Engine, Scene, Vector3, Color3, Mesh, AssetsManager, StandardMaterial, Layer,
     Animation, ArcRotateCamera, HemisphericLight } from '@babylonjs/core';
 import '@babylonjs/loaders';
 import { Ships } from '../definitions/Ships';
@@ -8,12 +8,13 @@ import { Commanders } from '../definitions/Commanders';
 import { OmegaLoadingScreen } from '../common/OmegaLoadingScreen';
 import './Combat.css';
 
+// Set up defaults
 const LASER_LENGTH_MS = 500;
 const SHOOT_GAP_MS = 500;
 const LHS_COLOR = Color3.Yellow();
 const RHS_COLOR = Color3.Green();
 
-// props: selectionLhs, selectionRhs, commanderLhs, commanderRhs, result
+
 export const Combat = (props) => {
     const [ round, setRound ] = useState(0);
     const [ showingResult, setShowingResult ] = useState(false);
@@ -24,6 +25,11 @@ export const Combat = (props) => {
     let shipMeshesLhs = [ [], [], [], [] ];
     let shipMeshesRhs = [ [], [], [], [] ];
 
+    /**
+     * Handler for the meshes loaded into the scene.
+     * Performs scaling, rotation, and most importantly, cloning
+     * the models according to the number of ships in combat.
+     */
     const afterImportMeshes = (scene, newMeshes, currentShip,
         basePosition, count, direction, isLhs) => {
 
@@ -41,9 +47,7 @@ export const Combat = (props) => {
 
         _.each(newMeshes, (newMesh) => {
             newMesh.material = new StandardMaterial(_.uniqueId(), scene);
-            newMesh.material.diffuseColor = isLhs
-                ? new Color3(0.612, 0.8, 0.396)
-                : new Color3(1, 0.79, 0.16)
+            newMesh.material.diffuseColor = isLhs ? LHS_COLOR : RHS_COLOR;
         });
 
         if (isLhs) {
@@ -69,7 +73,10 @@ export const Combat = (props) => {
         }
     };
 
-
+    /**
+     * Loads all the assets, most notably models, to the scene.
+     * Fetches a model for each ship in parallel.
+     */
     const loadResources = (scene) => {
         return new Promise((resolve, reject) => {
             const assetsManager = new AssetsManager(scene);
@@ -106,6 +113,13 @@ export const Combat = (props) => {
         });
     };
 
+    /**
+     * Executes the move visual action for one group of ships.
+     * Additionally ensures that ships do not overlap each other,
+     * when occupying the same X position (position on the board),
+     * by visually adjusting their Y coordinate dependning on the number
+     * of ships already there.
+     */
     const moveShips = (scene, move, isLhs) => {
         const meshes = isLhs ? shipMeshesLhs[move.source] : shipMeshesRhs[move.source];
         const alreadyThereLhs = _.filter(shipMeshesLhs, (meshes) => {
@@ -181,6 +195,10 @@ export const Combat = (props) => {
         }));
     };
 
+    /**
+     * Applies the current HP for a group of ships to their visuals.
+     * Ensures that the number of ships seen on the board corresponds to reality.
+     */
     const applyHpsToVisuals = (scene, target, isLhs, shipHpsLhs, shipHpsRhs) => {
         const hpPerShip = Ships[target].stats.hp;
         const hpsLeft = isLhs ? shipHpsRhs[target] : shipHpsLhs[target];
@@ -190,25 +208,15 @@ export const Combat = (props) => {
 
         for (let removeIndex = 0; removeIndex < shipsToRemove; removeIndex++) {
             const meshToRemove = meshes.shift();
-
-            // IMPROVEME only createasync once
-            // ParticleHelper.CreateAsync('explosion', scene).then((set) => {
-            //     set.systems.forEach(s => {
-            //         s.worldOffset = meshToRemove.position;
-            //         s.disposeOnStop = true;
-            //         s.maxSize = 0.01;
-            //         s.minSize = 0.001;
-            //     });
-            //     set.systems = [ set.systems[0] ];
-            //     set.start();
-            // });
-
             meshToRemove.dispose();
         }
     };
 
     let localLog = '';
 
+    /**
+     * Logs the attack.
+     */
     const logAttack = (move, isLhs) => {
         const prefix = isLhs ? '[Attacker]' : '[Defender]';
         const newEntry = `${prefix} ${Ships[move.source].name} hits ${Ships[move.target].name} for ${move.damage} damage.`;
@@ -216,12 +224,19 @@ export const Combat = (props) => {
         setCombatLog(localLog);
     };
 
+    /**
+     * Logs the round start.
+     */
     const logRoundStart = (round) => {
         const newEntry = `Round ${round + 1} begins.\n\n`;
         localLog = newEntry + localLog;
         setCombatLog(localLog);
     };
 
+    /**
+     * Shows a shoot visual (laser) according to specified parameters.
+     * Needs source and target ships.
+     */
     const showLaser = (scene, source, sourceMesh, targetMesh, isLhs) => {
         const mat = new StandardMaterial('laserMat', scene);
         mat.alpha = 0.6;
@@ -240,8 +255,11 @@ export const Combat = (props) => {
         }, LASER_LENGTH_MS);
     };
 
+    /**
+     * Shows the attack visuals for a move.
+     */
     const showAttacks = (scene, move, isLhs) => {
-        // for ships, each ship attacks next ship [0..n] meshes
+        // For ships, each ship attacks next ship [0..n] meshes
         const sourceMeshes = isLhs ? shipMeshesLhs : shipMeshesRhs;
         const targetMeshes = isLhs ? shipMeshesRhs : shipMeshesLhs;
         _.each(sourceMeshes[move.source], (sourceMesh, ind) => {
@@ -256,6 +274,14 @@ export const Combat = (props) => {
         });
     };
 
+    /**
+     * Plays a complete move.
+     * It will try to:
+     *     - move the ships
+     *     - show the attacks
+     *     - apply HP losses (take ships off the board if needed)
+     *     - update the logs
+     */
     const playMove = (scene, move, isLhs, shipHpsLhs, shipHpsRhs) => {
         let movePromise;
 
@@ -285,6 +311,10 @@ export const Combat = (props) => {
         return movePromise;
     };
 
+    /**
+     * Plays all moves of a combat, ensuring correct execution of promises
+     * for each move.
+     */
     const playMoves = (scene, lhsMoves, rhsMoves, shipHpsLhs, shipHpsRhs) => {
         const _recursiveMover = (ind, mainResolver) => {
             const lhsMove = lhsMoves[ind];
@@ -311,6 +341,11 @@ export const Combat = (props) => {
         });
     };
 
+    /**
+     * Plays one combat round.
+     * Will call playMoves internally.
+     * @recursive
+     */
     const playRound = (scene, round, shipHpsLhs, shipHpsRhs) => { // recursive
         if (round >= props.result.rounds) {
             setShowingResult(true);
@@ -348,6 +383,10 @@ export const Combat = (props) => {
         });
     };
 
+    /**
+     * Plays the entire combat.
+     * Internally, runs the recursive playRound, starting from round 0.
+     */
     const playCombat = (scene) => {
         const shipHpsLhs = _.map(props.result.selection_lhs, (count, index) => {
             return Ships[index].stats.hp * count;
@@ -359,6 +398,11 @@ export const Combat = (props) => {
         playRound(scene, 0, shipHpsLhs, shipHpsRhs);
     };
 
+    /**
+     * Handler for the Babylon scene mounted event.
+     * Sets up the scene, camera, light, background, rotations,
+     * and loads the resources.
+     */
     const onSceneMount = (canvas, scene) => {
         scene.getEngine().loadingScreen = new OmegaLoadingScreen();
 
@@ -385,6 +429,9 @@ export const Combat = (props) => {
         })
     };
 
+    /**
+     * Converts the result into a string, signifying who won the combat.
+     */
     const getWinnerString = () => {
         if (props.result.lhs_dead) {
             return 'Defender Wins';
@@ -395,11 +442,7 @@ export const Combat = (props) => {
         }
     }
 
-    const commanderAssetLhs = Commanders[props.result.commander_lhs % Commanders.length].asset
-        + 'thumb.png';
-    const commanderAssetRhs = Commanders[props.result.commander_rhs % Commanders.length].asset
-        + 'thumb.png';
-
+    // Set up the Babylon canvas and start loading the scene.
     useEffect(() => {
         if (reactCanvas.current) {
             const engine = new Engine(reactCanvas.current, true, null, true);
@@ -431,6 +474,11 @@ export const Combat = (props) => {
             }
         }
     }, [reactCanvas]);
+
+    const commanderAssetLhs = Commanders[props.result.commander_lhs % Commanders.length].asset
+        + 'thumb.png';
+    const commanderAssetRhs = Commanders[props.result.commander_rhs % Commanders.length].asset
+        + 'thumb.png';
 
     return (
         <div className="Combat">

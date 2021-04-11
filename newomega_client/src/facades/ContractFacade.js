@@ -1,17 +1,21 @@
-import { ApiPromise, WsProvider, Keyring, Codec } from '@polkadot/api';
-import { decodeAddress, encodeAddress } from '@polkadot/keyring';
-import { hexToU8a, isHex, stringToU8a, stringToHex, compactAddLength } from '@polkadot/util';
-import { ContractPromise, CodePromise, BlueprintPromise } from '@polkadot/api-contract';
+import { ApiPromise, WsProvider, Keyring } from '@polkadot/api';
+import { decodeAddress } from '@polkadot/keyring';
+import { hexToU8a } from '@polkadot/util';
+import { ContractPromise } from '@polkadot/api-contract';
 import delegatorAbi from '../ink/metadata.json';
 import _ from 'underscore';
 
 
 const RPC_PROVIDER = 'ws://127.0.0.1:9944'; // wss://rpc.polkadot.io
 const DELEGATOR_CONTRACT_ADDRESS = '5CGnwU4hpx2qXxxt2vr7Phg3Zch5YKMkq7kzyi2j1iojq5oX';
-const GAS_LIMIT = -1;//30000n * 1000000n;
+const GAS_LIMIT = -1; // 30000n * 1000000n;
 
 
 export class ContractFacade {
+    /**
+     * Initializes the Facade with a mnemonic.
+     * Instantiates a Keyring, exposes Alice account, and loads the contract.
+     */
     async initialize(mnemonic) {
         this.api = await this.getApi();
         this.keyring = new Keyring({ type: 'sr25519' });
@@ -21,11 +25,18 @@ export class ContractFacade {
         };
     }
 
+    /**
+     * Returns the main Delegator contract promise.
+     */
     getDelegator() {
         return new ContractPromise(this.api,
             delegatorAbi, decodeAddress(DELEGATOR_CONTRACT_ADDRESS));
     }
 
+    /**
+     * Instantiates the API, according to the default provider.
+     * Waits until the API becomes ready.
+     */
     async getApi() {
         const wsProvider = new WsProvider(RPC_PROVIDER);
         const api = ApiPromise.create({
@@ -37,14 +48,23 @@ export class ContractFacade {
         return api;
     }
 
+    /**
+     * Subscribes to balance changes for Alice according to the passed subscriber.
+     */
     async subscribeToBalance(subscriber) {
         return this.api && this.api.query.system.account(this.alice.address, subscriber);
     }
 
+    /**
+     * Subscribes to new heads.
+     */
     async subscribeNewHeads(handler) {
         return this.api && this.api.rpc.chain.subscribeNewHeads(handler);
     }
 
+    /**
+     * Registers a defence for player.
+     */
     async registerDefence(selection, variants, commander, name) {
         return this.contracts.delegator.tx
             .registerDefence({ value: 0, gasLimit: GAS_LIMIT },
@@ -55,6 +75,9 @@ export class ContractFacade {
             .signAndSend(this.alice);
     }
 
+    /**
+     * Registers the registered defence for current player.
+     */
     async getOwnDefence() {
         return new Promise(async (resolve, reject) => {
             //eslint-disable-next-line no-unused-vars
@@ -75,6 +98,9 @@ export class ContractFacade {
         });
     }
 
+    /**
+     * Returns all the players who have registered their defences.
+     */
     async getAllDefenders() {
         return new Promise(async resolve => {
             //eslint-disable-next-line no-unused-vars
@@ -101,12 +127,18 @@ export class ContractFacade {
         });
     }
 
+    /**
+     * Helper function to ensure a Uint8Array
+     */
     ensureUint8Array(obj) {
         return obj instanceof Uint8Array
             ? obj
             : Uint8Array.from(obj);
     }
 
+    /**
+     * Attacks another player's registered defence.
+     */
     async attack(target, selection, variants, commander) {
         selection = this.ensureUint8Array(selection);
         variants = this.ensureUint8Array(variants);
@@ -128,6 +160,9 @@ export class ContractFacade {
         });
     }
 
+    /**
+     * Returns the current leaderboard.
+     */
     async getLeaderboard() {
         return new Promise(async resolve => {
             //eslint-disable-next-line no-unused-vars
@@ -152,6 +187,9 @@ export class ContractFacade {
         });
     }
 
+    /**
+     * Replays a fight according to a seed.
+     */
     async replay(seed, selectionLhs, selectionRhs, variantsLhs, variantsRhs,
         commanderLhs, commanderRhs) {
 
@@ -210,45 +248,24 @@ export class ContractFacade {
         });
     }
 
+    // Under development.
+    // Currently blocked by the events data not being
+    // correctly deserialized by polkadot.js.
     async getRankedFightCompleteEvents() {
         console.log(this.contracts.delegator.query);
 
         const lastHdr = await this.api.rpc.chain.getHeader();
-        const startHdr = await this.api.rpc.chain.getBlockHash(0); // TODO smarter delta
+        const delta = 10000;
+        const startHdr = await this.api.rpc.chain.getBlockHash(lastHdr - delta);
         const events = await this.contracts.delegator.api.query.system.events.range([startHdr]);
 
-        debugger;
-
         events.forEach(([hash, values]) => {
-            const hashHex = hash.toHex();
-
             _.each(values, (value) => {
                 const event = value.event.toHuman();
                 if (event.method === 'ContractEmitted') {
                     console.log(event.data[1], value);
-                    debugger;
                 }
             })
         });
-
-//         events.forEach((record) => {
-//             const { event, phase } = record;
-//             const types = event.typeDef;
-
-// // Show what we are busy with
-//           console.log(
-//             `\t${event.section}:${event.method}:: (phase=${phase.toString()})`
-//           );
-//           console.log(`\t\t${event.meta.documentation.toString()}`);
-
-//           // Loop through each of the parameters, displaying the type and data
-//           event.data.forEach((data, index) => {
-//             console.log(`\t\t\t${types[index].type}: ${data.toString()}`);
-//           });
-//         });
-
-        // _.each(events, (event) => {
-        //     console.log(event[1][0].event.method);
-        // });
     }
 }

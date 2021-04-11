@@ -3,8 +3,10 @@ import React from 'react';
 import _ from 'underscore';
 
 
-// props.leaderboard, props.onDone
 export const Leaderboard = (props) => {
+    /**
+     * Renders a leaderboard entry.
+     */
     const renderEntry = (entry, ind) => {
         return (
             <div

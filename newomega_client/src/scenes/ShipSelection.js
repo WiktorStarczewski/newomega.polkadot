@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import _ from 'underscore';
-import { Engine, Scene, Vector3, AssetsManager, Layer, ArcRotateCamera, HemisphericLight } from '@babylonjs/core';
+import { Engine, Scene, Vector3, AssetsManager, Layer,
+    ArcRotateCamera, HemisphericLight } from '@babylonjs/core';
 import '@babylonjs/loaders';
 import { Ships } from '../definitions/Ships';
 import { OmegaLoadingScreen } from '../common/OmegaLoadingScreen';
@@ -10,8 +11,16 @@ import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
 
+/**
+ * How many of each ship can one include to the fleet.
+ * This setting can be relaxed over time, but until then
+ * it is set strict for performance reasons.
+ */
 const MAX_OFEACH_SHIP = 100;
 
+/**
+ * Gets the CP of currently selected fleet.
+ */
 const getCurrentCP = (selectedShips) => {
     return _.reduce(selectedShips, (memo, num, index) => {
         return memo + (num || 0) * Ships[index].stats.cp;
@@ -28,6 +37,10 @@ export const ShipSelection = (props) => {
     const [ notEnoughShips, setNotEnoughShips ] = useState(false);
     const reactCanvas = useRef(null);
 
+    /**
+     * Handler for the next ship action.
+     * Moves to the next ship.
+     */
     const nextShip = () => {
         const newShip = currentShip + 1;
         const newShipSafe = newShip >= Ships.length ? 0 : newShip;
@@ -35,6 +48,10 @@ export const ShipSelection = (props) => {
         loadCurrentShip(newShipSafe, scene);
     };
 
+    /**
+     * Handler for the previous ship action.
+     * Moves to the previous ship.
+     */
     const prevShip = () => {
         const newShip = currentShip - 1;
         const newShipSafe = newShip < 0 ? Ships.length - 1 : newShip;
@@ -42,30 +59,46 @@ export const ShipSelection = (props) => {
         loadCurrentShip(newShipSafe, scene);
     };
 
+    /**
+     * Handler for the add ship action.
+     * If possible, adds one ship of the current type to the fleet.
+     */
     const addShip = () => {
         const cost = Ships[currentShip].stats.cp;
         const currentCp = getCurrentCP(selectedShips);
         if (currentCp + cost <= props.maxCp && selectedShips[currentShip] < MAX_OFEACH_SHIP) {
             selectedShips[currentShip] = (selectedShips[currentShip] || 0) + 1;
-            setSelectedShips(selectedShips); // TODO NEEDED?
+            setSelectedShips(selectedShips);
             setCurrentCp(getCurrentCP(selectedShips));
         }
 
         setNotEnoughShips(false);
     };
 
+    /**
+     * Handler for the remove ship action.
+     * If possible, removes one ship of the current type from the fleet.
+     */
     const removeShip = () => {
         if (selectedShips[currentShip] > 0) {
             selectedShips[currentShip]--;
-            setSelectedShips(selectedShips); // TODO NEEDED?
+            setSelectedShips(selectedShips);
             setCurrentCp(getCurrentCP(selectedShips));
         }
     };
 
+    /**
+     * Handler for the done action.
+     * Fires an onDone callback passed in via props, with the currently selected fleet.
+     */
     const onDone = () => {
         props.onDone(selectedShips);
     };
 
+    /**
+     * Handler for the ship mesh loaded.
+     * Performs positioning and scaling of the models.
+     */
     const afterLoadShip = (scene, newMeshes, shipIndex) => {
         newMeshes[0].position = Vector3.Zero();
         newMeshes[0].rotation = new Vector3(-Math.PI / 12, Math.PI * (Ships[shipIndex].rotationModifierY || 1), 0);
@@ -73,6 +106,10 @@ export const ShipSelection = (props) => {
         newMeshes[0].isVisible = false;
     };
 
+    /**
+     * Loads all the assets, most notably models, to the scene.
+     * Fetches a model for each ship in parallel.
+     */
     const loadResources = (scene) => {
         return new Promise((resolve, reject) => {
             const loadedMeshes = [];
@@ -97,6 +134,10 @@ export const ShipSelection = (props) => {
         });
     };
 
+    /**
+     * Hides all other ships from the scene except for the currently
+     * selected one.
+     */
     const loadCurrentShip = (currentShip, scene, loadedMeshesOverride) => {
         const meshes = loadedMeshesOverride || loadedMeshes;
 
@@ -109,6 +150,11 @@ export const ShipSelection = (props) => {
         });
     };
 
+    /**
+     * Handler for the Babylon scene mounted event.
+     * Sets up the scene, camera, light, background, rotations,
+     * and loads the resources.
+     */
     const onSceneMount = (canvas, scene) => {
         setScene(scene);
 
@@ -151,6 +197,10 @@ export const ShipSelection = (props) => {
         });
     };
 
+    /**
+     * Checks if more ships can be selected, and if the fleet is full,
+     * fires the onDone callback intending to end the ship selection.
+     */
     const checkEnoughShipsAndDone = () => {
         const notEnoughShips = currentCp < props.maxCp;
         setNotEnoughShips(notEnoughShips);
@@ -159,6 +209,7 @@ export const ShipSelection = (props) => {
         }
     };
 
+    // Set up the Babylon canvas and start loading the scene.
     useEffect(() => {
         if (reactCanvas.current) {
             const engine = new Engine(reactCanvas.current, true, null, true);
