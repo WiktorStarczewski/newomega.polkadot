@@ -3,11 +3,11 @@ import { decodeAddress } from '@polkadot/keyring';
 import { hexToU8a } from '@polkadot/util';
 import { ContractPromise } from '@polkadot/api-contract';
 import delegatorAbi from '../ink/metadata.json';
+import config from '../config/config.json';
 import _ from 'underscore';
 
 
 const RPC_PROVIDER = 'ws://127.0.0.1:9944'; // wss://rpc.polkadot.io
-const DELEGATOR_CONTRACT_ADDRESS = '5CGnwU4hpx2qXxxt2vr7Phg3Zch5YKMkq7kzyi2j1iojq5oX';
 const GAS_LIMIT = -1; // 30000n * 1000000n;
 
 
@@ -30,7 +30,7 @@ export class ContractFacade {
      */
     getDelegator() {
         return new ContractPromise(this.api,
-            delegatorAbi, decodeAddress(DELEGATOR_CONTRACT_ADDRESS));
+            delegatorAbi, decodeAddress(config.delegator_address));
     }
 
     /**
@@ -187,6 +187,19 @@ export class ContractFacade {
         });
     }
 
+    _humanizeFightResult(fightResult) {
+        _.each(['lhs_moves', 'rhs_moves'], (movesType) => {
+            _.each(fightResult[movesType], (move) => {
+                _.each(['move_type', 'round', 'source', 'target',
+                    'target_position', 'damage'], (prop) => {
+                    move[prop] = parseInt(move[prop], 10);
+                });
+            });
+        });
+
+        return fightResult;
+    }
+
     /**
      * Replays a fight according to a seed.
      */
@@ -213,6 +226,8 @@ export class ContractFacade {
                     lhs_moves: output[1].unwrap().toHuman(),
                     rhs_moves: output[2].unwrap().toHuman(),
                 };
+
+                this._humanizeFightResult(fightResult);
 
                 fightResult.selection_lhs = Array.from(Uint8Array.from(hexToU8a(fightResult.selection_lhs)));
                 fightResult.selection_rhs = Array.from(Uint8Array.from(hexToU8a(fightResult.selection_rhs)));
