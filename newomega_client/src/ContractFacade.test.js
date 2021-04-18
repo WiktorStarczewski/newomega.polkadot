@@ -100,7 +100,7 @@ test('Attack', async () => {
     expect(attackResult.seed).toBeDefined();
     expect(attackResult.lhs_dead).toBeTruthy();
 
-    await new Promise((r) => setTimeout(r, 2*BLOCK_LENGTH));
+    await new Promise((r) => setTimeout(r, BLOCK_LENGTH));
 
     const leaderboardPost = await facadeAlice.getLeaderboard();
     const alicePost = _.findWhere(leaderboardPost, {

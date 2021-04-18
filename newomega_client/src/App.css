@@ -227,6 +227,14 @@ canvas {
     display: none;
 }
 
+.App .lootCrate {
+    position: absolute;
+    top: 0.5rem;
+    right: 3.5rem;
+    color: white;
+    cursor: pointer;
+}
+
 .App .progressOuter {
     position: fixed;
     bottom: 2rem;

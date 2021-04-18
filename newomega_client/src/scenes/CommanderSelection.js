@@ -191,6 +191,15 @@ export const CommanderSelection = (props) => {
     const commanderDefenceString = `+${Commanders[currentCommander].stats.defence.modifier}${commanderDefenceSuffix}`;
 
 
+    const commanderFromList = props.commanders && _.find(props.commanders, (commander) => {
+        return parseInt(commander[0], 10) === currentCommander;
+    });
+
+    const XP_PER_LEVEL = 10;
+    const commanderXp = (commanderFromList && commanderFromList[1].xp) || 0;
+    const commanderLevel = Math.floor(commanderXp / XP_PER_LEVEL) + 1;
+
+
     return (
         <div className="CommanderSelection">
             <canvas ref={reactCanvas} id="commander-selection"/>
@@ -204,10 +213,10 @@ export const CommanderSelection = (props) => {
                             Rarity: <span style={{color: commanderRarityColor}}>{commanderRarityString}</span>
                         </div>
                         <div>
-                            Level: 1
+                            Level: {commanderLevel}
                         </div>
                         <div>
-                            Experience: 0/1000
+                            Experience: {commanderXp % XP_PER_LEVEL}/{XP_PER_LEVEL}
                         </div>
                     </div>
                     <div className="uiElement sideBox commanderControls">

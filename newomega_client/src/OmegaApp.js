@@ -12,6 +12,7 @@ import { Ships } from './definitions/Ships';
 import { OmegaDefaults } from './definitions/OmegaDefaults';
 import Snackbar from '@material-ui/core/Snackbar';
 import SettingsIcon from '@material-ui/icons/Settings';
+import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
 import _ from 'underscore';
 
 
@@ -61,6 +62,7 @@ export default class OmegaApp extends Component {
             leaderboard: null,
             settingDefence: false,
             settingAttack: false,
+            ownCommanders: null,
         };
 
         this.defaultUnloadedState = {
@@ -85,10 +87,23 @@ export default class OmegaApp extends Component {
      * Handler for the ship selection done action.
      * Moves to the commander selection stage.
      */
-    shipSelectionDone(selection) {
+    async shipSelectionDone(selection) {
+        let commanders;
+
+        try {
+            commanders = await this.state.contractFacade.getCommanders();
+        } catch (error) {
+            return this.setState({
+                ...this.defaultLoadedState,
+                toastOpen: true,
+                toastContent: 'Transaction failed (Get Commanders).',
+            });
+        }
+
         this.setState({
             mode: Modes.CommanderSelection,
             trainingSelfSelection: selection,
+            ownCommanders: commanders,
         });
     }
 
@@ -228,9 +243,22 @@ export default class OmegaApp extends Component {
      * Handler for the commanders action.
      * Moves to the commander preview screen.
      */
-    commanders() {
+    async commanders() {
+        let commanders;
+
+        try {
+            commanders = await this.state.contractFacade.getCommanders();
+        } catch (error) {
+            return this.setState({
+                ...this.defaultLoadedState,
+                toastOpen: true,
+                toastContent: 'Transaction failed (Get Commanders).',
+            });
+        }
+
         this.setState({
             mode: Modes.CommanderPreview,
+            ownCommanders: commanders,
         });
     }
 
@@ -393,6 +421,24 @@ export default class OmegaApp extends Component {
         });
     }
 
+    async buyLootCrate() {
+        this.setState({
+            loading: true,
+        });
+
+        try {
+            await this.state.contractFacade.buyLootCrate();
+        } catch (error) {
+            return this.setState({
+                ...this.defaultLoadedState,
+                toastOpen: true,
+                toastContent: 'Transaction failed (Buy Loot Create).',
+            });
+        }
+
+        return this.commanders();
+    }
+
     /**
      * Generic cancel handler.
      * Returns to Main Menu.
@@ -429,6 +475,9 @@ export default class OmegaApp extends Component {
                         <div className="playerName">
                             <input autoCorrect="off" type="text" className="playerNameInput" value={this.state.playerName}
                                 onChange={this.handlePlayerNameChange.bind(this)}/>
+                        </div>
+                        <div className="lootCrate" onClick={this.buyLootCrate.bind(this)}>
+                            <AttachMoneyIcon fontSize="large"/>
                         </div>
                         <div className="settings" onClick={this.showSettings.bind(this)}>
                             <SettingsIcon fontSize="large"/>
@@ -472,10 +521,12 @@ export default class OmegaApp extends Component {
                 }
                 {this.state.mode === Modes.CommanderSelection &&
                     <CommanderSelection onDone={this.commanderSelectionDone.bind(this)}
+                        commanders={this.state.ownCommanders}
                         onCancel={this.genericCancelHandler.bind(this)}/>
                 }
                 {this.state.mode === Modes.CommanderPreview &&
                     <CommanderSelection onDone={this.commanderPreviewDone.bind(this)}
+                        commanders={this.state.ownCommanders}
                         onCancel={this.genericCancelHandler.bind(this)}/>
                 }
                 {this.state.mode === Modes.Combat &&

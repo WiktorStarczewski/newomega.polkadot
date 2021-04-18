@@ -247,6 +247,33 @@ export class ContractFacade {
         });
     }
 
+    async getCommanders() {
+        return new Promise(async resolve => {
+            //eslint-disable-next-line no-unused-vars
+            const { _gasConsumed, result, output } =
+                await this.contracts.delegator.query
+                    .getCommanders(this.alice.address, { value: 0, gasLimit: GAS_LIMIT });
+
+            if (result.isOk) {
+                resolve(output.toHuman());
+            } else {
+                resolve(result.asErr);
+            }
+        });
+    }
+
+    async buyLootCrate() {
+        return new Promise(async resolve => {
+            this.contracts.delegator.tx
+                .buyLootCrate({ value: 1, gasLimit: GAS_LIMIT })
+                .signAndSend(this.alice, (result) => {
+                    if (result.status.isInBlock || result.status.isFinalized) {
+                        resolve(result);
+                    }
+                });
+        });
+    }
+
     // Under development.
     // Currently blocked by the events data not being
     // correctly deserialized by polkadot.js.
