@@ -24,6 +24,8 @@ After deployment of the contracts, the Delegator contracts address needs to be c
 
 That will update the config file with the address.
 
+*Please note assigning the contract address is needed for both tests and the client itself.*
+
 ## Testing
 
 ```yarn test --all```
