@@ -84,7 +84,7 @@ export class LoginScreen extends React.Component {
                             <textarea className="mnemonicInput"
                                 onChange={this.mnemonicInputChanged.bind(this)}
                                 value={this.state.mnemonic}
-                                placeholder="Enter your 12-word mnemonic for the Matic Ethereum Testnet network"/>
+                                placeholder="Enter your 12-word mnemonic (password)"/>
                         </div>
                     }
                     {!this.state.enteringMnemonic &&

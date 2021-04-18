@@ -1,160 +1,124 @@
-import { render, screen } from '@testing-library/react';
-import App from './App';
-import _ from 'underscore';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { Leaderboard } from './ui/Leaderboard';
+import { OpponentSelection } from './ui/OpponentSelection';
+import { LoginScreen } from './ui/LoginScreen';
+import { Settings } from './ui/Settings';
 
 
-// test('renders learn react link', () => {
-//   render(<App />);
-//   const linkElement = screen.getByText(/learn react/i);
-//   expect(linkElement).toBeInTheDocument();
-// });
+jest.setTimeout(25000);
 
+test('Leaderboard', async () => {
+    const leaderboard = [
+        {
+            address: 'Address 1',
+            ranked_wins: 10,
+            ranked_losses: 0,
+        },
+        {
+            address: 'Address 2',
+            ranked_wins: 5,
+            ranked_losses: 10,
+        },
+    ];
 
-const BLOCK_LENGTH = 6000;
+    render(<Leaderboard leaderboard={leaderboard}/>);
 
-const MNEMONIC = '';
-const { ContractFacade } = require('./facades/ContractFacade');
-const { Deployer } = require('./facades/Deployer');
+    const firstAddress = screen.getByText(/address 1/i);
+    expect(firstAddress).toBeInTheDocument();
 
+    const secondAddress = screen.getByText(/address 2/i);
+    expect(secondAddress).toBeInTheDocument();
 
-jest.setTimeout(50000);
-
-// test('Deploy', async () => {
-//     const deployer = new Deployer();
-//     await deployer.initialize();
-
-//     return deployer.deployDelegator().then((contract) => {
-//         expect(contract).toBeDefined();
-//     });
-// });
-
-test('Initialize', async () => {
-    const facade = new ContractFacade();
-    await facade.initialize('//Alice');
-
-    expect(facade.api).toBeDefined();
-    expect(facade.keyring).toBeDefined();
-    expect(facade.alice).toBeDefined();
-    expect(facade.contracts).toBeDefined();
+    const mainMenuItems = screen.getAllByText(/address/i);
+    expect (mainMenuItems.length).toBe(2);
 });
 
-test('RegisterDefence', async () => {
-    // Alice
-    const facadeAlice = new ContractFacade();
-    await facadeAlice.initialize('//Alice');
+test('LoginScreen - Signup', async () => {
+    const onLoginDone = (options) => {
+        const mnemonic = options.finisher();
+        expect(mnemonic).toBeDefined();
+        const words = mnemonic.split(' ');
+        expect(words.length).toBe(12);
+        expect(mnemonic).toEqual(localStorage.getItem('OmegaMnemonic'));
+    };
 
-    const selection = Uint8Array.from([10, 27, 43, 15]);
-    const variants = Uint8Array.from([0, 1, 0, 1]);
-    const commander = 0;
-    const name = 'TestAlice';
-    await facadeAlice.registerDefence(selection, variants, commander, name);
-    await new Promise((r) => setTimeout(r, BLOCK_LENGTH));
+    render(<LoginScreen onDone={onLoginDone}/>);
 
-    const defence = await facadeAlice.getOwnDefence();
+    const signupButton = screen.getByText(/sign up/i);
+    expect(signupButton).toBeInTheDocument();
 
-    expect(defence.selection).toEqual(selection);
-    expect(defence.variants).toEqual(variants);
-    expect(defence.commander).toEqual(commander);
-    expect(defence.name).toEqual(name);
-
-    // Bob
-    const facadeBob = new ContractFacade();
-    await facadeBob.initialize('//Bob');
-
-    const selectionBob = Uint8Array.from([23, 9, 9, 5]);
-    const variantsBob = Uint8Array.from([1, 0, 1, 1]);
-    const commanderBob = 0;
-    const nameBob = 'TestBob';
-    await facadeBob.registerDefence(selectionBob, variantsBob, commanderBob, nameBob);
-    await new Promise((r) => setTimeout(r, BLOCK_LENGTH));
-
-    const defenceBob = await facadeBob.getOwnDefence();
-
-    expect(defenceBob.selection).toEqual(selectionBob);
-    expect(defenceBob.variants).toEqual(variantsBob);
-    expect(defenceBob.commander).toEqual(commanderBob);
-    expect(defenceBob.name).toEqual(nameBob);
-
-    const defenders = await facadeAlice.getAllDefenders();
-
-    expect(defenders.length >= 2).toBeTruthy();
+    signupButton.click();
+    await new Promise((r) => setTimeout(r, 1000));
 });
 
-test('Attack', async () => {
-    const facadeAlice = new ContractFacade();
-    await facadeAlice.initialize('//Alice');
+test('LoginScreen - Login', async () => {
+    localStorage.removeItem('OmegaMnemonic');
 
-    const facadeBob = new ContractFacade();
-    await facadeBob.initialize('//Bob');
+    const dummyMnemonic = 'word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12';
 
-    const leaderboardPre = await facadeAlice.getLeaderboard();
-    const alicePre = _.find(leaderboardPre, (iter) => {
-        return iter[0] === facadeAlice.alice.address;
-    });
-    const bobPre = _.find(leaderboardPre, (iter) => {
-        return iter[0] === facadeBob.alice.address;
-    });
-    const alicePreBoard = alicePre
-        ? alicePre[1]
-        : { ranked_wins: 0, ranked_losses: 0 };
-    const bobPreBoard = bobPre
-        ? bobPre[1]
-        : { ranked_wins: 0, ranked_losses: 0 };
+    const onLoginDone = (options) => {
+        const mnemonic = options.finisher();
+        expect(mnemonic).toEqual(dummyMnemonic);
+    };
 
-    const selection = Uint8Array.from([1, 0, 0, 0]);
-    const variants = Uint8Array.from([1, 0, 1, 1]);
-    const commander = 0;
+    render(<LoginScreen onDone={onLoginDone}/>);
 
-    const attackResult = await facadeAlice.attack(facadeBob.alice.address, selection, variants, commander);
-    expect(attackResult.events.length).toEqual(2);
+    const loginButton = screen.getByText(/log in/i);
+    expect(loginButton).toBeInTheDocument();
 
-    console.log('## ', attackResult.events);
+    loginButton.click();
 
-    await new Promise((r) => setTimeout(r, BLOCK_LENGTH));
+    const mnemonicInput = screen.getByPlaceholderText(/mnemonic/i);
+    fireEvent.change(mnemonicInput, { target: { value: dummyMnemonic }});
 
-    const leaderboardPost = await facadeAlice.getLeaderboard();
-    const alicePost = _.find(leaderboardPost, (iter) => {
-        return iter[0] === facadeAlice.alice.address;
-    });
-    const bobPost = _.find(leaderboardPost, (iter) => {
-        return iter[0] === facadeBob.alice.address;
-    });
-    const alicePostBoard = alicePost
-        ? alicePost[1]
-        : { ranked_wins: 0, ranked_losses: 0 };
-    const bobPostBoard = bobPost
-        ? bobPost[1]
-        : { ranked_wins: 0, ranked_losses: 0 };
+    const loginAfterEntryButton = screen.getByText(/log in/i);
+    expect(loginAfterEntryButton).toBeInTheDocument();
 
-    expect(alicePreBoard.ranked_wins).toEqual(alicePostBoard.ranked_wins);
-    expect(alicePreBoard.ranked_losses).toEqual(alicePostBoard.ranked_losses - 1);
+    loginAfterEntryButton.click();
 
-    expect(bobPreBoard.ranked_wins).toEqual(bobPostBoard.ranked_wins - 1);
-    expect(bobPreBoard.ranked_losses).toEqual(bobPostBoard.ranked_losses);
+    await new Promise((r) => setTimeout(r, 1000));
 });
 
-test('Replay', async () => {
-    const facade = new ContractFacade();
-    await facade.initialize('//Alice');
+test('OpponentSelection', async () => {
+    const opponents = [
+        {
+            name: 'Player 1',
+        },
+        {
+            name: 'Player 2',
+        },
+    ];
 
-    const seed = 1337;
-    const selectionLhs = Uint8Array.from([3, 3, 3, 3]);
-    const selectionRhs = Uint8Array.from([16, 16, 16, 16]);
-    const variantsLhs = Uint8Array.from([0, 1, 0, 1]);
-    const variantsRhs = Uint8Array.from([1, 0, 1, 0]);
-    const commanderLhs = 0;
-    const commanderRhs = 0;
+    const onSelectionDone = (opponent) => {
+        expect(opponent).toBeDefined();
+        expect(opponent.name).toEqual(opponents[0].name);
+    };
 
-    const result = await facade.replay(
-        seed,
-        selectionLhs,
-        selectionRhs,
-        variantsLhs,
-        variantsRhs,
-        commanderLhs,
-        commanderRhs
-    );
+    render(<OpponentSelection opponents={opponents} onDone={onSelectionDone} />);
 
-    expect(result.lhs_dead).toBeTruthy();
-    expect(result.rhs_dead).toBeFalsy();
+    const firstAddress = screen.getByText(/player 1/i);
+    expect(firstAddress).toBeInTheDocument();
+
+    const secondAddress = screen.getByText(/player 2/i);
+    expect(secondAddress).toBeInTheDocument();
+
+    const mainMenuItems = screen.getAllByText(/player/i);
+    expect (mainMenuItems.length).toBe(2);
+
+    firstAddress.click();
+
+    await new Promise((r) => setTimeout(r, 1000));
+});
+
+test('Settings', async () => {
+    const address = 'Dummy Address';
+    const balance = 1337;
+
+    render(<Settings address={address} balance={balance} />);
+
+    const firstAddress = screen.getByText(/dummy address/i);
+    expect(firstAddress).toBeInTheDocument();
+
+    const balanceElement = screen.getByText(/1337/i);
+    expect(balanceElement).toBeInTheDocument();
 });

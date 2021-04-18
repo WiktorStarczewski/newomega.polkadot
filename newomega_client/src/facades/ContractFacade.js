@@ -225,21 +225,21 @@ export class ContractFacade {
                 fightResult.rounds = parseInt(fightResult.rounds, 10);
                 fightResult.seed = parseInt(fightResult.seed, 10);
 
-                _.each(fightResult.lhs_moves, (move) => {
-                    _.each(['move_type', 'round', 'source',
-                        'target', 'target_position', 'damage'], (prop) => {
+                // _.each(fightResult.lhs_moves, (move) => {
+                //     _.each(['move_type', 'round', 'source',
+                //         'target', 'target_position', 'damage'], (prop) => {
 
-                        move[prop] = parseInt(move[prop].replaceAll(',', '').replaceAll('.', ''), 10);
-                    });
-                });
+                //         move[prop] = parseInt(move[prop].replaceAll(',', '').replaceAll('.', ''), 10);
+                //     });
+                // });
 
-                _.each(fightResult.rhs_moves, (move) => {
-                    _.each(['move_type', 'round', 'source',
-                        'target', 'target_position', 'damage'], (prop) => {
+                // _.each(fightResult.rhs_moves, (move) => {
+                //     _.each(['move_type', 'round', 'source',
+                //         'target', 'target_position', 'damage'], (prop) => {
 
-                        move[prop] = parseInt(move[prop].replaceAll(',', '').replaceAll('.', ''), 10);
-                    });
-                });
+                //         move[prop] = parseInt(move[prop].replaceAll(',', '').replaceAll('.', ''), 10);
+                //     });
+                // });
 
                 resolve(fightResult);
             } else {
