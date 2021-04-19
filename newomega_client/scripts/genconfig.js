@@ -8,6 +8,11 @@ const jsonContent = {
   delegator_address,
 };
 
+const dir = 'src/config';
+if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+}
+
 fs.writeFile('src/config/config.json', JSON.stringify(jsonContent), 'utf8', (err) => {
     if (err) {
         console.log("An error occured while writing JSON Object to File.");
