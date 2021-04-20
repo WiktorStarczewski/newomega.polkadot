@@ -1,5 +1,4 @@
-<img width="750" alt="web3 foundation_grants_badge_white" src="https://user-images.githubusercontent.com/5662527/115274993-874f4f00-a141-11eb-94e6-80d6f02548bd.png" background="black">
-
+![web3 foundation_grants_badge_white](https://user-images.githubusercontent.com/5662527/115382341-db574380-a1d4-11eb-8c16-7f90b203d7c8.jpg)
 
 # New Omega
 
