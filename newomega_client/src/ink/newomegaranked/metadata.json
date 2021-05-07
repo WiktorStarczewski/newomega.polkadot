@@ -1,0 +1,707 @@
+{
+  "metadataVersion": "0.1.0",
+  "source": {
+    "hash": "0x7f4b4f80a5152c5113a6b3912365d540830fa6e38ced47b28ee77936b843e792",
+    "language": "ink! 3.0.0-rc3",
+    "compiler": "rustc 1.52.0-nightly"
+  },
+  "contract": {
+    "name": "newomegaranked",
+    "version": "1.0.0",
+    "authors": [
+      "Wiktor Starczewski <celrisen@gmail.com>"
+    ]
+  },
+  "spec": {
+    "constructors": [
+      {
+        "args": [
+          {
+            "name": "new_omega_game",
+            "type": {
+              "displayName": [
+                "NewOmegaGame"
+              ],
+              "type": 12
+            }
+          },
+          {
+            "name": "new_omega_storage",
+            "type": {
+              "displayName": [
+                "NewOmegaStorage"
+              ],
+              "type": 13
+            }
+          }
+        ],
+        "docs": [],
+        "name": [
+          "new"
+        ],
+        "selector": "0x9bae9d5e"
+      }
+    ],
+    "docs": [
+      " The logic for all ranked fights between players. Connected to Fight Management",
+      " in order to run fights, and to Storage in order to save the results and perform",
+      " actions according to their result."
+    ],
+    "events": [],
+    "messages": [
+      {
+        "args": [
+          {
+            "name": "caller",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 1
+            }
+          },
+          {
+            "name": "selection",
+            "type": {
+              "displayName": [],
+              "type": 10
+            }
+          },
+          {
+            "name": "variants",
+            "type": {
+              "displayName": [],
+              "type": 10
+            }
+          },
+          {
+            "name": "commander",
+            "type": {
+              "displayName": [
+                "u8"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "name": "name",
+            "type": {
+              "displayName": [
+                "String"
+              ],
+              "type": 11
+            }
+          }
+        ],
+        "docs": [
+          " Registers a fleet for Ranked Defence.",
+          "",
+          " # Arguments",
+          "",
+          " * `caller` - The account id of the player to register the defence for",
+          " * `selection` - The fleet composition of the defence",
+          " * `variants` - The variants (fittings) of the defence",
+          " * `commander` - Index of the commander leading the defence",
+          " * `name` - The defender name"
+        ],
+        "mutates": true,
+        "name": [
+          "register_defence"
+        ],
+        "payable": false,
+        "returnType": null,
+        "selector": "0x04e7de04"
+      },
+      {
+        "args": [
+          {
+            "name": "caller",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 1
+            }
+          }
+        ],
+        "docs": [
+          " Gets the registered defence of a player.",
+          " Will panic if defence has not been registered for the player.",
+          "",
+          " # Arguments",
+          "",
+          " * `caller` - The account id of the player to register the defence for",
+          "",
+          " # Returns",
+          "",
+          " * `defence` - The registered defence"
+        ],
+        "mutates": false,
+        "name": [
+          "get_own_defence"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "PlayerDefence"
+          ],
+          "type": 9
+        },
+        "selector": "0x910faa81"
+      },
+      {
+        "args": [],
+        "docs": [
+          " Gets all the registered defenders (all players).",
+          "",
+          " # Returns",
+          "",
+          " * `defenders` - The registered defenders"
+        ],
+        "mutates": false,
+        "name": [
+          "get_all_defenders"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "Vec"
+          ],
+          "type": 14
+        },
+        "selector": "0x6e2c3eec"
+      },
+      {
+        "args": [
+          {
+            "name": "caller",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 1
+            }
+          },
+          {
+            "name": "target",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 1
+            }
+          },
+          {
+            "name": "selection",
+            "type": {
+              "displayName": [],
+              "type": 10
+            }
+          },
+          {
+            "name": "variants",
+            "type": {
+              "displayName": [],
+              "type": 10
+            }
+          },
+          {
+            "name": "commander",
+            "type": {
+              "displayName": [
+                "u8"
+              ],
+              "type": 3
+            }
+          }
+        ],
+        "docs": [
+          " Calculates a ranked fight between two players.",
+          "",
+          " # Arguments",
+          "",
+          " * `caller` - account id of the attacker",
+          " * `target` - account id of the defender",
+          " * `selection` - Attacker fleet composition (array with ship quantities)",
+          " * `variants` - An array that holds variants of the attacker fleet",
+          " * `commander` - The attacker commander"
+        ],
+        "mutates": true,
+        "name": [
+          "attack"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "FightResult"
+          ],
+          "type": 16
+        },
+        "selector": "0x986e721e"
+      }
+    ]
+  },
+  "storage": {
+    "struct": {
+      "fields": [
+        {
+          "layout": {
+            "cell": {
+              "key": "0x0000000000000000000000000000000000000000000000000000000000000000",
+              "ty": 1
+            }
+          },
+          "name": "owner"
+        },
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "cell": {
+                      "key": "0x0100000000000000000000000000000000000000000000000000000000000000",
+                      "ty": 1
+                    }
+                  },
+                  "name": "account_id"
+                }
+              ]
+            }
+          },
+          "name": "new_omega_game"
+        },
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "cell": {
+                      "key": "0x0200000000000000000000000000000000000000000000000000000000000000",
+                      "ty": 1
+                    }
+                  },
+                  "name": "account_id"
+                }
+              ]
+            }
+          },
+          "name": "new_omega_storage"
+        },
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "struct": {
+                      "fields": [
+                        {
+                          "layout": {
+                            "cell": {
+                              "key": "0x0300000000000000000000000000000000000000000000000000000000000000",
+                              "ty": 4
+                            }
+                          },
+                          "name": "header"
+                        },
+                        {
+                          "layout": {
+                            "struct": {
+                              "fields": [
+                                {
+                                  "layout": {
+                                    "cell": {
+                                      "key": "0x0400000000000000000000000000000000000000000000000000000000000000",
+                                      "ty": 5
+                                    }
+                                  },
+                                  "name": "len"
+                                },
+                                {
+                                  "layout": {
+                                    "array": {
+                                      "cellsPerElem": 1,
+                                      "layout": {
+                                        "cell": {
+                                          "key": "0x0400000001000000000000000000000000000000000000000000000000000000",
+                                          "ty": 6
+                                        }
+                                      },
+                                      "len": 4294967295,
+                                      "offset": "0x0500000000000000000000000000000000000000000000000000000000000000"
+                                    }
+                                  },
+                                  "name": "elems"
+                                }
+                              ]
+                            }
+                          },
+                          "name": "entries"
+                        }
+                      ]
+                    }
+                  },
+                  "name": "keys"
+                },
+                {
+                  "layout": {
+                    "hash": {
+                      "layout": {
+                        "cell": {
+                          "key": "0x0500000001000000000000000000000000000000000000000000000000000000",
+                          "ty": 8
+                        }
+                      },
+                      "offset": "0x0400000001000000000000000000000000000000000000000000000000000000",
+                      "strategy": {
+                        "hasher": "Blake2x256",
+                        "postfix": "",
+                        "prefix": "0x696e6b20686173686d6170"
+                      }
+                    }
+                  },
+                  "name": "values"
+                }
+              ]
+            }
+          },
+          "name": "defences"
+        }
+      ]
+    }
+  },
+  "types": [
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "type": 2,
+              "typeName": "[u8; 32]"
+            }
+          ]
+        }
+      },
+      "path": [
+        "ink_env",
+        "types",
+        "AccountId"
+      ]
+    },
+    {
+      "def": {
+        "array": {
+          "len": 32,
+          "type": 3
+        }
+      }
+    },
+    {
+      "def": {
+        "primitive": "u8"
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "last_vacant",
+              "type": 5,
+              "typeName": "Index"
+            },
+            {
+              "name": "len",
+              "type": 5,
+              "typeName": "u32"
+            },
+            {
+              "name": "len_entries",
+              "type": 5,
+              "typeName": "u32"
+            }
+          ]
+        }
+      },
+      "path": [
+        "ink_storage",
+        "collections",
+        "stash",
+        "Header"
+      ]
+    },
+    {
+      "def": {
+        "primitive": "u32"
+      }
+    },
+    {
+      "def": {
+        "variant": {
+          "variants": [
+            {
+              "fields": [
+                {
+                  "type": 7,
+                  "typeName": "VacantEntry"
+                }
+              ],
+              "name": "Vacant"
+            },
+            {
+              "fields": [
+                {
+                  "type": 1,
+                  "typeName": "T"
+                }
+              ],
+              "name": "Occupied"
+            }
+          ]
+        }
+      },
+      "params": [
+        1
+      ],
+      "path": [
+        "ink_storage",
+        "collections",
+        "stash",
+        "Entry"
+      ]
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "next",
+              "type": 5,
+              "typeName": "Index"
+            },
+            {
+              "name": "prev",
+              "type": 5,
+              "typeName": "Index"
+            }
+          ]
+        }
+      },
+      "path": [
+        "ink_storage",
+        "collections",
+        "stash",
+        "VacantEntry"
+      ]
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "value",
+              "type": 9,
+              "typeName": "V"
+            },
+            {
+              "name": "key_index",
+              "type": 5,
+              "typeName": "KeyIndex"
+            }
+          ]
+        }
+      },
+      "params": [
+        9
+      ],
+      "path": [
+        "ink_storage",
+        "collections",
+        "hashmap",
+        "ValueEntry"
+      ]
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "selection",
+              "type": 10,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "variants",
+              "type": 10,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "commander",
+              "type": 3,
+              "typeName": "u8"
+            },
+            {
+              "name": "name",
+              "type": 11,
+              "typeName": "String"
+            }
+          ]
+        }
+      },
+      "path": [
+        "newomegaranked",
+        "newomegaranked",
+        "PlayerDefence"
+      ]
+    },
+    {
+      "def": {
+        "array": {
+          "len": 4,
+          "type": 3
+        }
+      }
+    },
+    {
+      "def": {
+        "primitive": "str"
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "account_id",
+              "type": 1,
+              "typeName": "AccountId"
+            }
+          ]
+        }
+      },
+      "path": [
+        "newomegagame",
+        "newomegagame",
+        "NewOmegaGame"
+      ]
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "account_id",
+              "type": 1,
+              "typeName": "AccountId"
+            }
+          ]
+        }
+      },
+      "path": [
+        "newomegastorage",
+        "newomegastorage",
+        "NewOmegaStorage"
+      ]
+    },
+    {
+      "def": {
+        "sequence": {
+          "type": 15
+        }
+      }
+    },
+    {
+      "def": {
+        "tuple": [
+          1,
+          9
+        ]
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "selection_lhs",
+              "type": 10,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "selection_rhs",
+              "type": 10,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "variants_lhs",
+              "type": 10,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "variants_rhs",
+              "type": 10,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "commander_lhs",
+              "type": 3,
+              "typeName": "u8"
+            },
+            {
+              "name": "commander_rhs",
+              "type": 3,
+              "typeName": "u8"
+            },
+            {
+              "name": "lhs_dead",
+              "type": 17,
+              "typeName": "bool"
+            },
+            {
+              "name": "rhs_dead",
+              "type": 17,
+              "typeName": "bool"
+            },
+            {
+              "name": "rounds",
+              "type": 3,
+              "typeName": "u8"
+            },
+            {
+              "name": "seed",
+              "type": 18,
+              "typeName": "u64"
+            },
+            {
+              "name": "ships_lost_lhs",
+              "type": 10,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "ships_lost_rhs",
+              "type": 10,
+              "typeName": "[u8; MAX_SHIPS]"
+            }
+          ]
+        }
+      },
+      "path": [
+        "newomega",
+        "newomega",
+        "FightResult"
+      ]
+    },
+    {
+      "def": {
+        "primitive": "bool"
+      }
+    },
+    {
+      "def": {
+        "primitive": "u64"
+      }
+    }
+  ]
+}

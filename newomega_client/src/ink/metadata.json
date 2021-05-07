@@ -1,0 +1,1194 @@
+{
+  "metadataVersion": "0.1.0",
+  "source": {
+    "hash": "0x226a41724e0cf4bb7786c4f88660480c40dbfeb2de09035fd4ef72a758d9fe9d",
+    "language": "ink! 3.0.0-rc3",
+    "compiler": "rustc 1.52.0-nightly"
+  },
+  "contract": {
+    "name": "newomegadelegator",
+    "version": "1.0.0",
+    "authors": [
+      "Wiktor Starczewski <celrisen@gmail.com>"
+    ]
+  },
+  "spec": {
+    "constructors": [
+      {
+        "args": [
+          {
+            "name": "version",
+            "type": {
+              "displayName": [
+                "u32"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "newomega_code_hash",
+            "type": {
+              "displayName": [
+                "Hash"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "name": "newomega_storage_code_hash",
+            "type": {
+              "displayName": [
+                "Hash"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "name": "newomega_game_code_hash",
+            "type": {
+              "displayName": [
+                "Hash"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "name": "newomega_ranked_code_hash",
+            "type": {
+              "displayName": [
+                "Hash"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "name": "newomega_rewarder_code_hash",
+            "type": {
+              "displayName": [
+                "Hash"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "docs": [
+          "Instantiates the Delegator.",
+          "",
+          "# Arguments",
+          "",
+          "* `version` - Contract version",
+          "* `newomega_code_hash` - Contract code hash: NewOmega",
+          "* `newomega_storage_code_hash` - Contract code hash: NewOmegaStorage",
+          "* `newomega_game_code_hash` - Contract code hash: NewOmegaGame",
+          "* `newomega_ranked_code_hash` - Contract code hash: NewOmegaRanked",
+          "* `newomega_rewarder_code_hash` - Contract code hash: NewOmegaRewarder"
+        ],
+        "name": [
+          "new"
+        ],
+        "selector": "0x9bae9d5e"
+      }
+    ],
+    "docs": [
+      " The Delegator Contract",
+      "",
+      " Instantiates all the other contracts, and acts as a facade to interact with them."
+    ],
+    "events": [
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "name": "attacker",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 1
+            }
+          },
+          {
+            "docs": [],
+            "indexed": true,
+            "name": "defender",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 1
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "name": "result",
+            "type": {
+              "displayName": [
+                "FightResult"
+              ],
+              "type": 9
+            }
+          }
+        ],
+        "docs": [],
+        "name": "RankedFightComplete"
+      }
+    ],
+    "messages": [
+      {
+        "args": [
+          {
+            "name": "seed",
+            "type": {
+              "displayName": [
+                "u64"
+              ],
+              "type": 6
+            }
+          },
+          {
+            "name": "selection_lhs",
+            "type": {
+              "displayName": [],
+              "type": 7
+            }
+          },
+          {
+            "name": "selection_rhs",
+            "type": {
+              "displayName": [],
+              "type": 7
+            }
+          },
+          {
+            "name": "variants_lhs",
+            "type": {
+              "displayName": [],
+              "type": 7
+            }
+          },
+          {
+            "name": "variants_rhs",
+            "type": {
+              "displayName": [],
+              "type": 7
+            }
+          },
+          {
+            "name": "commander_lhs",
+            "type": {
+              "displayName": [
+                "u8"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "name": "commander_rhs",
+            "type": {
+              "displayName": [
+                "u8"
+              ],
+              "type": 3
+            }
+          }
+        ],
+        "docs": [
+          " Returns a fight replay (detailed fight description).",
+          "",
+          " # Arguments",
+          "",
+          " * `seed` - Seed used to generate randomness",
+          " * `selection_lhs` - Attacker fleet composition (array with ship quantities)",
+          " * `selection_rhs` - Defender fleet composition (array with ship quantities)",
+          " * `variants_lhs` - An array that holds variants of the attacker fleet",
+          " * `variants_rhs` - An array that holds variants of the defender fleet",
+          " * `commander_lhs` - The attacker commander",
+          " * `commander_rhs` - The defender commander",
+          "",
+          " # Returns",
+          "",
+          " * `result` - A FightResult structure containing the result",
+          " * `moves_lhs` - Logged moves of the attacker",
+          " * `moves_rhs` - Logged moves of the defender"
+        ],
+        "mutates": false,
+        "name": [
+          "replay"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [],
+          "type": 8
+        },
+        "selector": "0x42941c88"
+      },
+      {
+        "args": [
+          {
+            "name": "seed",
+            "type": {
+              "displayName": [
+                "u64"
+              ],
+              "type": 6
+            }
+          },
+          {
+            "name": "selection_lhs",
+            "type": {
+              "displayName": [],
+              "type": 7
+            }
+          },
+          {
+            "name": "selection_rhs",
+            "type": {
+              "displayName": [],
+              "type": 7
+            }
+          },
+          {
+            "name": "variants_lhs",
+            "type": {
+              "displayName": [],
+              "type": 7
+            }
+          },
+          {
+            "name": "variants_rhs",
+            "type": {
+              "displayName": [],
+              "type": 7
+            }
+          },
+          {
+            "name": "commander_lhs",
+            "type": {
+              "displayName": [
+                "u8"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "name": "commander_rhs",
+            "type": {
+              "displayName": [
+                "u8"
+              ],
+              "type": 3
+            }
+          }
+        ],
+        "docs": [
+          " Returns a fight result (without detailed fight description).",
+          "",
+          " # Arguments",
+          "",
+          " * `seed` - Seed used to generate randomness",
+          " * `selection_lhs` - Attacker fleet composition (array with ship quantities)",
+          " * `selection_rhs` - Defender fleet composition (array with ship quantities)",
+          " * `variants_lhs` - An array that holds variants of the attacker fleet",
+          " * `variants_rhs` - An array that holds variants of the defender fleet",
+          " * `commander_lhs` - The attacker commander",
+          " * `commander_rhs` - The defender commander",
+          "",
+          " # Returns",
+          "",
+          " * `result` - A FightResult structure containing the result",
+          " * `moves_lhs` - Always returning None",
+          " * `moves_rhs` - Always returning None"
+        ],
+        "mutates": false,
+        "name": [
+          "replay_result"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [],
+          "type": 8
+        },
+        "selector": "0x4c84c454"
+      },
+      {
+        "args": [
+          {
+            "name": "cp",
+            "type": {
+              "displayName": [
+                "u16"
+              ],
+              "type": 15
+            }
+          },
+          {
+            "name": "hp",
+            "type": {
+              "displayName": [
+                "u16"
+              ],
+              "type": 15
+            }
+          },
+          {
+            "name": "attack_base",
+            "type": {
+              "displayName": [
+                "u16"
+              ],
+              "type": 15
+            }
+          },
+          {
+            "name": "attack_variable",
+            "type": {
+              "displayName": [
+                "u16"
+              ],
+              "type": 15
+            }
+          },
+          {
+            "name": "defence",
+            "type": {
+              "displayName": [
+                "u16"
+              ],
+              "type": 15
+            }
+          },
+          {
+            "name": "speed",
+            "type": {
+              "displayName": [
+                "u8"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "name": "range",
+            "type": {
+              "displayName": [
+                "u8"
+              ],
+              "type": 3
+            }
+          }
+        ],
+        "docs": [
+          " Adds ship to the ship definitions",
+          "",
+          " # Arguments",
+          "",
+          " * `cp` - Ship Command Power",
+          " * `hp` - Ship Health Points",
+          " * `attack_base` - Base attack",
+          " * `attack_variable` - Variable attack (subject to random)",
+          " * `defence` - Ship Defence",
+          " * `speed` - Ship Speed",
+          " * `range` - Ship Range"
+        ],
+        "mutates": true,
+        "name": [
+          "add_ship"
+        ],
+        "payable": false,
+        "returnType": null,
+        "selector": "0x433e4d1f"
+      },
+      {
+        "args": [
+          {
+            "name": "selection",
+            "type": {
+              "displayName": [],
+              "type": 7
+            }
+          },
+          {
+            "name": "variants",
+            "type": {
+              "displayName": [],
+              "type": 7
+            }
+          },
+          {
+            "name": "commander",
+            "type": {
+              "displayName": [
+                "u8"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "name": "name",
+            "type": {
+              "displayName": [
+                "String"
+              ],
+              "type": 16
+            }
+          }
+        ],
+        "docs": [
+          " Registers a fleet for Ranked Defence.",
+          "",
+          " # Arguments",
+          "",
+          " * `selection` - The fleet composition of the defence",
+          " * `variants` - The variants (fittings) of the defence",
+          " * `commander` - Index of the commander leading the defence",
+          " * `name` - The defender name"
+        ],
+        "mutates": true,
+        "name": [
+          "register_defence"
+        ],
+        "payable": false,
+        "returnType": null,
+        "selector": "0x04e7de04"
+      },
+      {
+        "args": [],
+        "docs": [
+          " Gets the registered defence of a player.",
+          " Will panic if defence has not been registered for the player.",
+          "",
+          " # Returns",
+          "",
+          " * `defence` - The registered defence"
+        ],
+        "mutates": false,
+        "name": [
+          "get_own_defence"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "PlayerDefence"
+          ],
+          "type": 17
+        },
+        "selector": "0x910faa81"
+      },
+      {
+        "args": [],
+        "docs": [
+          " Gets all the registered defenders (all players).",
+          "",
+          " # Returns",
+          "",
+          " * `defenders` - The registered defenders"
+        ],
+        "mutates": false,
+        "name": [
+          "get_all_defenders"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "Vec"
+          ],
+          "type": 18
+        },
+        "selector": "0x6e2c3eec"
+      },
+      {
+        "args": [
+          {
+            "name": "target",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 1
+            }
+          },
+          {
+            "name": "selection",
+            "type": {
+              "displayName": [],
+              "type": 7
+            }
+          },
+          {
+            "name": "variants",
+            "type": {
+              "displayName": [],
+              "type": 7
+            }
+          },
+          {
+            "name": "commander",
+            "type": {
+              "displayName": [
+                "u8"
+              ],
+              "type": 3
+            }
+          }
+        ],
+        "docs": [
+          " Calculates a ranked fight between caller and another player.",
+          "",
+          " # Arguments",
+          "",
+          " * `target` - account id of the defender",
+          " * `selection` - Attacker fleet composition (array with ship quantities)",
+          " * `variants` - An array that holds variants of the attacker fleet",
+          " * `commander` - The attacker commander",
+          "",
+          " # Events",
+          "",
+          " * RankedFightComplete - when fight is complete"
+        ],
+        "mutates": true,
+        "name": [
+          "attack"
+        ],
+        "payable": false,
+        "returnType": null,
+        "selector": "0x986e721e"
+      },
+      {
+        "args": [],
+        "docs": [
+          " Gets the current ranked leaderboard.",
+          "",
+          " # Returns",
+          "",
+          " * `leaderboard` - A Vec containing a tuple of (player account id, player data)"
+        ],
+        "mutates": false,
+        "name": [
+          "get_leaderboard"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "Vec"
+          ],
+          "type": 20
+        },
+        "selector": "0x091a420a"
+      },
+      {
+        "args": [],
+        "docs": [
+          " Gets all the owned commanders for the caller.",
+          "",
+          " # Returns",
+          "",
+          " * `commanders` - A Vec containing a tuple of (commander id, commander data)"
+        ],
+        "mutates": false,
+        "name": [
+          "get_commanders"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "Vec"
+          ],
+          "type": 23
+        },
+        "selector": "0x59b7e52e"
+      },
+      {
+        "args": [],
+        "docs": [
+          " Generates a loot crate for the caller.",
+          "",
+          " # Returns",
+          "",
+          " * `commander` - Id of the commander received from the loot crate"
+        ],
+        "mutates": true,
+        "name": [
+          "buy_loot_crate"
+        ],
+        "payable": true,
+        "returnType": {
+          "displayName": [
+            "u8"
+          ],
+          "type": 3
+        },
+        "selector": "0xd2ddb4d5"
+      },
+      {
+        "args": [
+          {
+            "name": "value",
+            "type": {
+              "displayName": [
+                "Balance"
+              ],
+              "type": 26
+            }
+          }
+        ],
+        "docs": [
+          " Withdraws funds from the Rewarder contract to the Delegator contract owner",
+          "",
+          " # Arguments",
+          "",
+          " * `value` - Balance to withdraw. Panic if greater than available balance."
+        ],
+        "mutates": true,
+        "name": [
+          "admin_withdraw_funds"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "Result"
+          ],
+          "type": 27
+        },
+        "selector": "0x92b8d2b3"
+      }
+    ]
+  },
+  "storage": {
+    "struct": {
+      "fields": [
+        {
+          "layout": {
+            "cell": {
+              "key": "0x0000000000000000000000000000000000000000000000000000000000000000",
+              "ty": 1
+            }
+          },
+          "name": "owner"
+        },
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "cell": {
+                      "key": "0x0100000000000000000000000000000000000000000000000000000000000000",
+                      "ty": 1
+                    }
+                  },
+                  "name": "account_id"
+                }
+              ]
+            }
+          },
+          "name": "new_omega"
+        },
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "cell": {
+                      "key": "0x0200000000000000000000000000000000000000000000000000000000000000",
+                      "ty": 1
+                    }
+                  },
+                  "name": "account_id"
+                }
+              ]
+            }
+          },
+          "name": "new_omega_storage"
+        },
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "cell": {
+                      "key": "0x0300000000000000000000000000000000000000000000000000000000000000",
+                      "ty": 1
+                    }
+                  },
+                  "name": "account_id"
+                }
+              ]
+            }
+          },
+          "name": "new_omega_game"
+        },
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "cell": {
+                      "key": "0x0400000000000000000000000000000000000000000000000000000000000000",
+                      "ty": 1
+                    }
+                  },
+                  "name": "account_id"
+                }
+              ]
+            }
+          },
+          "name": "new_omega_ranked"
+        },
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "cell": {
+                      "key": "0x0500000000000000000000000000000000000000000000000000000000000000",
+                      "ty": 1
+                    }
+                  },
+                  "name": "account_id"
+                }
+              ]
+            }
+          },
+          "name": "new_omega_rewarder"
+        }
+      ]
+    }
+  },
+  "types": [
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "type": 2,
+              "typeName": "[u8; 32]"
+            }
+          ]
+        }
+      },
+      "path": [
+        "ink_env",
+        "types",
+        "AccountId"
+      ]
+    },
+    {
+      "def": {
+        "array": {
+          "len": 32,
+          "type": 3
+        }
+      }
+    },
+    {
+      "def": {
+        "primitive": "u8"
+      }
+    },
+    {
+      "def": {
+        "primitive": "u32"
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "type": 2,
+              "typeName": "[u8; 32]"
+            }
+          ]
+        }
+      },
+      "path": [
+        "ink_env",
+        "types",
+        "Hash"
+      ]
+    },
+    {
+      "def": {
+        "primitive": "u64"
+      }
+    },
+    {
+      "def": {
+        "array": {
+          "len": 4,
+          "type": 3
+        }
+      }
+    },
+    {
+      "def": {
+        "tuple": [
+          9,
+          11,
+          11
+        ]
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "selection_lhs",
+              "type": 7,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "selection_rhs",
+              "type": 7,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "variants_lhs",
+              "type": 7,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "variants_rhs",
+              "type": 7,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "commander_lhs",
+              "type": 3,
+              "typeName": "u8"
+            },
+            {
+              "name": "commander_rhs",
+              "type": 3,
+              "typeName": "u8"
+            },
+            {
+              "name": "lhs_dead",
+              "type": 10,
+              "typeName": "bool"
+            },
+            {
+              "name": "rhs_dead",
+              "type": 10,
+              "typeName": "bool"
+            },
+            {
+              "name": "rounds",
+              "type": 3,
+              "typeName": "u8"
+            },
+            {
+              "name": "seed",
+              "type": 6,
+              "typeName": "u64"
+            },
+            {
+              "name": "ships_lost_lhs",
+              "type": 7,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "ships_lost_rhs",
+              "type": 7,
+              "typeName": "[u8; MAX_SHIPS]"
+            }
+          ]
+        }
+      },
+      "path": [
+        "newomega",
+        "newomega",
+        "FightResult"
+      ]
+    },
+    {
+      "def": {
+        "primitive": "bool"
+      }
+    },
+    {
+      "def": {
+        "variant": {
+          "variants": [
+            {
+              "name": "None"
+            },
+            {
+              "fields": [
+                {
+                  "type": 12,
+                  "typeName": "T"
+                }
+              ],
+              "name": "Some"
+            }
+          ]
+        }
+      },
+      "params": [
+        12
+      ],
+      "path": [
+        "Option"
+      ]
+    },
+    {
+      "def": {
+        "sequence": {
+          "type": 13
+        }
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "move_type",
+              "type": 3,
+              "typeName": "u8"
+            },
+            {
+              "name": "round",
+              "type": 3,
+              "typeName": "u8"
+            },
+            {
+              "name": "source",
+              "type": 3,
+              "typeName": "u8"
+            },
+            {
+              "name": "target",
+              "type": 3,
+              "typeName": "u8"
+            },
+            {
+              "name": "target_position",
+              "type": 14,
+              "typeName": "i16"
+            },
+            {
+              "name": "damage",
+              "type": 4,
+              "typeName": "u32"
+            }
+          ]
+        }
+      },
+      "path": [
+        "newomega",
+        "newomega",
+        "Move"
+      ]
+    },
+    {
+      "def": {
+        "primitive": "i16"
+      }
+    },
+    {
+      "def": {
+        "primitive": "u16"
+      }
+    },
+    {
+      "def": {
+        "primitive": "str"
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "selection",
+              "type": 7,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "variants",
+              "type": 7,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "commander",
+              "type": 3,
+              "typeName": "u8"
+            },
+            {
+              "name": "name",
+              "type": 16,
+              "typeName": "String"
+            }
+          ]
+        }
+      },
+      "path": [
+        "newomegaranked",
+        "newomegaranked",
+        "PlayerDefence"
+      ]
+    },
+    {
+      "def": {
+        "sequence": {
+          "type": 19
+        }
+      }
+    },
+    {
+      "def": {
+        "tuple": [
+          1,
+          17
+        ]
+      }
+    },
+    {
+      "def": {
+        "sequence": {
+          "type": 21
+        }
+      }
+    },
+    {
+      "def": {
+        "tuple": [
+          1,
+          22
+        ]
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "ranked_wins",
+              "type": 4,
+              "typeName": "u32"
+            },
+            {
+              "name": "ranked_losses",
+              "type": 4,
+              "typeName": "u32"
+            }
+          ]
+        }
+      },
+      "path": [
+        "newomegastorage",
+        "newomegastorage",
+        "PlayerData"
+      ]
+    },
+    {
+      "def": {
+        "sequence": {
+          "type": 24
+        }
+      }
+    },
+    {
+      "def": {
+        "tuple": [
+          3,
+          25
+        ]
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "xp",
+              "type": 4,
+              "typeName": "u32"
+            }
+          ]
+        }
+      },
+      "path": [
+        "newomegastorage",
+        "newomegastorage",
+        "CommanderData"
+      ]
+    },
+    {
+      "def": {
+        "primitive": "u128"
+      }
+    },
+    {
+      "def": {
+        "variant": {
+          "variants": [
+            {
+              "fields": [
+                {
+                  "type": 28,
+                  "typeName": "T"
+                }
+              ],
+              "name": "Ok"
+            },
+            {
+              "fields": [
+                {
+                  "type": 29,
+                  "typeName": "E"
+                }
+              ],
+              "name": "Err"
+            }
+          ]
+        }
+      },
+      "params": [
+        28,
+        29
+      ],
+      "path": [
+        "Result"
+      ]
+    },
+    {
+      "def": {
+        "tuple": []
+      }
+    },
+    {
+      "def": {
+        "variant": {
+          "variants": [
+            {
+              "discriminant": 0,
+              "name": "TransferFailed"
+            },
+            {
+              "discriminant": 1,
+              "name": "InsufficientFunds"
+            },
+            {
+              "discriminant": 2,
+              "name": "BelowSubsistenceThreshold"
+            }
+          ]
+        }
+      },
+      "path": [
+        "newomegadelegator",
+        "newomegadelegator",
+        "RewardWithdrawError"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,590 @@
+{
+  "metadataVersion": "0.1.0",
+  "source": {
+    "hash": "0xf37813716f3b956e9b087d4f7639d1eac3eded35cac77aeb97217feff58967f0",
+    "language": "ink! 3.0.0-rc3",
+    "compiler": "rustc 1.52.0-nightly"
+  },
+  "contract": {
+    "name": "newomegagame",
+    "version": "1.0.0",
+    "authors": [
+      "Wiktor Starczewski <celrisen@gmail.com>"
+    ]
+  },
+  "spec": {
+    "constructors": [
+      {
+        "args": [
+          {
+            "name": "new_omega",
+            "type": {
+              "displayName": [
+                "NewOmega"
+              ],
+              "type": 7
+            }
+          }
+        ],
+        "docs": [],
+        "name": [
+          "new"
+        ],
+        "selector": "0x9bae9d5e"
+      }
+    ],
+    "docs": [
+      " Wraps the Game Engine with a bit of storage, which contains the definition of",
+      " ships (their statistics). The allows for separation of the Engine logic from ships,",
+      " which is useful because it allows the Engine to remain pure."
+    ],
+    "events": [],
+    "messages": [
+      {
+        "args": [
+          {
+            "name": "cp",
+            "type": {
+              "displayName": [
+                "u16"
+              ],
+              "type": 6
+            }
+          },
+          {
+            "name": "hp",
+            "type": {
+              "displayName": [
+                "u16"
+              ],
+              "type": 6
+            }
+          },
+          {
+            "name": "attack_base",
+            "type": {
+              "displayName": [
+                "u16"
+              ],
+              "type": 6
+            }
+          },
+          {
+            "name": "attack_variable",
+            "type": {
+              "displayName": [
+                "u16"
+              ],
+              "type": 6
+            }
+          },
+          {
+            "name": "defence",
+            "type": {
+              "displayName": [
+                "u16"
+              ],
+              "type": 6
+            }
+          },
+          {
+            "name": "speed",
+            "type": {
+              "displayName": [
+                "u8"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "name": "range",
+            "type": {
+              "displayName": [
+                "u8"
+              ],
+              "type": 3
+            }
+          }
+        ],
+        "docs": [
+          " Adds ship to the ship definitions",
+          "",
+          " # Arguments",
+          "",
+          " * `cp` - Ship Command Power",
+          " * `hp` - Ship Health Points",
+          " * `attack_base` - Base attack",
+          " * `attack_variable` - Variable attack (subject to random)",
+          " * `defence` - Ship Defence",
+          " * `speed` - Ship Speed",
+          " * `range` - Ship Range"
+        ],
+        "mutates": true,
+        "name": [
+          "add_ship"
+        ],
+        "payable": false,
+        "returnType": null,
+        "selector": "0x433e4d1f"
+      },
+      {
+        "args": [],
+        "docs": [
+          " Returns all the registered ships",
+          "",
+          " # Returns",
+          "",
+          " * `ships` - A Vector containing the registered ships"
+        ],
+        "mutates": false,
+        "name": [
+          "get_ships"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "Vec"
+          ],
+          "type": 4
+        },
+        "selector": "0x002c6909"
+      },
+      {
+        "args": [
+          {
+            "name": "seed",
+            "type": {
+              "displayName": [
+                "u64"
+              ],
+              "type": 8
+            }
+          },
+          {
+            "name": "log_moves",
+            "type": {
+              "displayName": [
+                "bool"
+              ],
+              "type": 9
+            }
+          },
+          {
+            "name": "selection_lhs",
+            "type": {
+              "displayName": [],
+              "type": 10
+            }
+          },
+          {
+            "name": "selection_rhs",
+            "type": {
+              "displayName": [],
+              "type": 10
+            }
+          },
+          {
+            "name": "variants_lhs",
+            "type": {
+              "displayName": [],
+              "type": 10
+            }
+          },
+          {
+            "name": "variants_rhs",
+            "type": {
+              "displayName": [],
+              "type": 10
+            }
+          },
+          {
+            "name": "commander_lhs",
+            "type": {
+              "displayName": [
+                "u8"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "name": "commander_rhs",
+            "type": {
+              "displayName": [
+                "u8"
+              ],
+              "type": 3
+            }
+          }
+        ],
+        "docs": [
+          " Calculates a fight, using registered ships.",
+          "",
+          " # Arguments",
+          "",
+          " * `seed` - Seed used to generate randomness",
+          " * `log_moves` - Whether to return a detailed fight log",
+          " * `selection_lhs` - Attacker fleet composition (array with ship quantities)",
+          " * `selection_rhs` - Defender fleet composition (array with ship quantities)",
+          " * `variants_lhs` - An array that holds variants of the attacker fleet",
+          " * `variants_rhs` - An array that holds variants of the defender fleet",
+          " * `commander_lhs` - The attacker commander",
+          " * `commander_rhs` - The defender commander",
+          "",
+          " # Returns",
+          "",
+          " * `result` - A FightResult structure containing the result",
+          " * `moves_lhs` - Logged moves of the attacker, if requested. None if not.",
+          " * `moves_rhs` - Logged moves of the defender, if requested. None if not."
+        ],
+        "mutates": false,
+        "name": [
+          "fight"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [],
+          "type": 11
+        },
+        "selector": "0xa372d04c"
+      }
+    ]
+  },
+  "storage": {
+    "struct": {
+      "fields": [
+        {
+          "layout": {
+            "cell": {
+              "key": "0x0000000000000000000000000000000000000000000000000000000000000000",
+              "ty": 1
+            }
+          },
+          "name": "owner"
+        },
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "cell": {
+                      "key": "0x0100000000000000000000000000000000000000000000000000000000000000",
+                      "ty": 1
+                    }
+                  },
+                  "name": "account_id"
+                }
+              ]
+            }
+          },
+          "name": "new_omega"
+        },
+        {
+          "layout": {
+            "cell": {
+              "key": "0x0200000000000000000000000000000000000000000000000000000000000000",
+              "ty": 4
+            }
+          },
+          "name": "ships"
+        }
+      ]
+    }
+  },
+  "types": [
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "type": 2,
+              "typeName": "[u8; 32]"
+            }
+          ]
+        }
+      },
+      "path": [
+        "ink_env",
+        "types",
+        "AccountId"
+      ]
+    },
+    {
+      "def": {
+        "array": {
+          "len": 32,
+          "type": 3
+        }
+      }
+    },
+    {
+      "def": {
+        "primitive": "u8"
+      }
+    },
+    {
+      "def": {
+        "sequence": {
+          "type": 5
+        }
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "cp",
+              "type": 6,
+              "typeName": "u16"
+            },
+            {
+              "name": "hp",
+              "type": 6,
+              "typeName": "u16"
+            },
+            {
+              "name": "attack_base",
+              "type": 6,
+              "typeName": "u16"
+            },
+            {
+              "name": "attack_variable",
+              "type": 6,
+              "typeName": "u16"
+            },
+            {
+              "name": "defence",
+              "type": 6,
+              "typeName": "u16"
+            },
+            {
+              "name": "speed",
+              "type": 3,
+              "typeName": "u8"
+            },
+            {
+              "name": "range",
+              "type": 3,
+              "typeName": "u8"
+            }
+          ]
+        }
+      },
+      "path": [
+        "newomega",
+        "newomega",
+        "Ship"
+      ]
+    },
+    {
+      "def": {
+        "primitive": "u16"
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "account_id",
+              "type": 1,
+              "typeName": "AccountId"
+            }
+          ]
+        }
+      },
+      "path": [
+        "newomega",
+        "newomega",
+        "NewOmega"
+      ]
+    },
+    {
+      "def": {
+        "primitive": "u64"
+      }
+    },
+    {
+      "def": {
+        "primitive": "bool"
+      }
+    },
+    {
+      "def": {
+        "array": {
+          "len": 4,
+          "type": 3
+        }
+      }
+    },
+    {
+      "def": {
+        "tuple": [
+          12,
+          13,
+          13
+        ]
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "selection_lhs",
+              "type": 10,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "selection_rhs",
+              "type": 10,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "variants_lhs",
+              "type": 10,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "variants_rhs",
+              "type": 10,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "commander_lhs",
+              "type": 3,
+              "typeName": "u8"
+            },
+            {
+              "name": "commander_rhs",
+              "type": 3,
+              "typeName": "u8"
+            },
+            {
+              "name": "lhs_dead",
+              "type": 9,
+              "typeName": "bool"
+            },
+            {
+              "name": "rhs_dead",
+              "type": 9,
+              "typeName": "bool"
+            },
+            {
+              "name": "rounds",
+              "type": 3,
+              "typeName": "u8"
+            },
+            {
+              "name": "seed",
+              "type": 8,
+              "typeName": "u64"
+            },
+            {
+              "name": "ships_lost_lhs",
+              "type": 10,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "ships_lost_rhs",
+              "type": 10,
+              "typeName": "[u8; MAX_SHIPS]"
+            }
+          ]
+        }
+      },
+      "path": [
+        "newomega",
+        "newomega",
+        "FightResult"
+      ]
+    },
+    {
+      "def": {
+        "variant": {
+          "variants": [
+            {
+              "name": "None"
+            },
+            {
+              "fields": [
+                {
+                  "type": 14,
+                  "typeName": "T"
+                }
+              ],
+              "name": "Some"
+            }
+          ]
+        }
+      },
+      "params": [
+        14
+      ],
+      "path": [
+        "Option"
+      ]
+    },
+    {
+      "def": {
+        "sequence": {
+          "type": 15
+        }
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "move_type",
+              "type": 3,
+              "typeName": "u8"
+            },
+            {
+              "name": "round",
+              "type": 3,
+              "typeName": "u8"
+            },
+            {
+              "name": "source",
+              "type": 3,
+              "typeName": "u8"
+            },
+            {
+              "name": "target",
+              "type": 3,
+              "typeName": "u8"
+            },
+            {
+              "name": "target_position",
+              "type": 16,
+              "typeName": "i16"
+            },
+            {
+              "name": "damage",
+              "type": 17,
+              "typeName": "u32"
+            }
+          ]
+        }
+      },
+      "path": [
+        "newomega",
+        "newomega",
+        "Move"
+      ]
+    },
+    {
+      "def": {
+        "primitive": "i16"
+      }
+    },
+    {
+      "def": {
+        "primitive": "u32"
+      }
+    }
+  ]
+}

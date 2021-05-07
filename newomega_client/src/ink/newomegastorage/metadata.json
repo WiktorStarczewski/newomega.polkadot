@@ -1,0 +1,789 @@
+{
+  "metadataVersion": "0.1.0",
+  "source": {
+    "hash": "0x3a2fd2dbab7401f027eff6d3b19c770ce7c44cf2c4445f669f63b88deffd33f5",
+    "language": "ink! 3.0.0-rc3",
+    "compiler": "rustc 1.52.0-nightly"
+  },
+  "contract": {
+    "name": "newomegastorage",
+    "version": "1.0.0",
+    "authors": [
+      "Wiktor Starczewski <celrisen@gmail.com>"
+    ]
+  },
+  "spec": {
+    "constructors": [
+      {
+        "args": [],
+        "docs": [],
+        "name": [
+          "new"
+        ],
+        "selector": "0x9bae9d5e"
+      },
+      {
+        "args": [],
+        "docs": [],
+        "name": [
+          "default"
+        ],
+        "selector": "0xed4b9d1b"
+      }
+    ],
+    "docs": [
+      " Isolated storage for all things which should be considered player progress.",
+      " This module should only ever change if a serious API change is needed, but otherwise",
+      " it should survive most upgrades of the rest of the system, preserving the Game Board",
+      " (state of the game) across upgrades and bugfixes.",
+      " The only logic that belongs here is accessors for the storage."
+    ],
+    "events": [],
+    "messages": [
+      {
+        "args": [],
+        "docs": [
+          " Clears all the contract authorisations."
+        ],
+        "mutates": true,
+        "name": [
+          "clear_authorisations"
+        ],
+        "payable": false,
+        "returnType": null,
+        "selector": "0x06616f77"
+      },
+      {
+        "args": [
+          {
+            "name": "contract",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          }
+        ],
+        "docs": [
+          " Authorises a contract to allow it to use this contract.",
+          " Only authorised contracts can manipulate the storage.",
+          "",
+          " # Arguments",
+          "",
+          " * `contract` - The contract address to be authorised"
+        ],
+        "mutates": true,
+        "name": [
+          "authorise_contract"
+        ],
+        "payable": false,
+        "returnType": null,
+        "selector": "0x2f7eb189"
+      },
+      {
+        "args": [
+          {
+            "name": "caller",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          }
+        ],
+        "docs": [
+          " Marks a ranked win for a player",
+          "",
+          " # Arguments",
+          "",
+          " * `caller` - The account id of the player to mark"
+        ],
+        "mutates": true,
+        "name": [
+          "mark_ranked_win"
+        ],
+        "payable": false,
+        "returnType": null,
+        "selector": "0x82084e89"
+      },
+      {
+        "args": [
+          {
+            "name": "caller",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          }
+        ],
+        "docs": [
+          " Marks a ranked loss for a player",
+          "",
+          " # Arguments",
+          "",
+          " * `caller` - The account id of the player to mark"
+        ],
+        "mutates": true,
+        "name": [
+          "mark_ranked_loss"
+        ],
+        "payable": false,
+        "returnType": null,
+        "selector": "0x5a7fb8b8"
+      },
+      {
+        "args": [
+          {
+            "name": "caller",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "commander_id",
+            "type": {
+              "displayName": [
+                "u8"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "amount",
+            "type": {
+              "displayName": [
+                "u32"
+              ],
+              "type": 1
+            }
+          }
+        ],
+        "docs": [
+          " Adds Experience Points to a player's commander",
+          "",
+          " # Arguments",
+          "",
+          " * `caller` - The account id of the player to mark",
+          " * `commander_id` - The id of commander to increase XP for",
+          " * `amount` - The amount of XP to increase"
+        ],
+        "mutates": true,
+        "name": [
+          "add_commander_xp"
+        ],
+        "payable": false,
+        "returnType": null,
+        "selector": "0x55f210ea"
+      },
+      {
+        "args": [
+          {
+            "name": "caller",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          }
+        ],
+        "docs": [
+          " Gets all the owned commanders for a player.",
+          "",
+          " # Arguments",
+          "",
+          " * `caller` - The account id of the player to get commanders for",
+          "",
+          " # Returns",
+          "",
+          " * `commanders` - A Vec containing a tuple of (commander id, commander data)"
+        ],
+        "mutates": false,
+        "name": [
+          "get_commanders"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "Vec"
+          ],
+          "type": 14
+        },
+        "selector": "0x59b7e52e"
+      },
+      {
+        "args": [
+          {
+            "name": "caller",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "commander_id",
+            "type": {
+              "displayName": [
+                "u8"
+              ],
+              "type": 4
+            }
+          }
+        ],
+        "docs": [
+          " Checks whether a player owns a commander.",
+          "",
+          " # Arguments",
+          "",
+          " * `caller` - The account id of the player to get commanders for",
+          " * `commander_id` - The id of the commander to check for",
+          "",
+          " # Returns",
+          "",
+          " * `has_commander` - Whether player owns the commander"
+        ],
+        "mutates": false,
+        "name": [
+          "has_commander"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "bool"
+          ],
+          "type": 16
+        },
+        "selector": "0x7c8a700f"
+      },
+      {
+        "args": [],
+        "docs": [
+          " Gets the current ranked leaderboard.",
+          "",
+          " # Returns",
+          "",
+          " * `leaderboard` - A Vec containing a tuple of (player account id, player data)"
+        ],
+        "mutates": false,
+        "name": [
+          "get_leaderboard"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "Vec"
+          ],
+          "type": 17
+        },
+        "selector": "0x091a420a"
+      }
+    ]
+  },
+  "storage": {
+    "struct": {
+      "fields": [
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "cell": {
+                      "key": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                      "ty": 1
+                    }
+                  },
+                  "name": "len"
+                },
+                {
+                  "layout": {
+                    "array": {
+                      "cellsPerElem": 1,
+                      "layout": {
+                        "cell": {
+                          "key": "0x0000000001000000000000000000000000000000000000000000000000000000",
+                          "ty": 2
+                        }
+                      },
+                      "len": 4294967295,
+                      "offset": "0x0100000000000000000000000000000000000000000000000000000000000000"
+                    }
+                  },
+                  "name": "elems"
+                }
+              ]
+            }
+          },
+          "name": "owners"
+        },
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "struct": {
+                      "fields": [
+                        {
+                          "layout": {
+                            "cell": {
+                              "key": "0x0000000001000000000000000000000000000000000000000000000000000000",
+                              "ty": 5
+                            }
+                          },
+                          "name": "header"
+                        },
+                        {
+                          "layout": {
+                            "struct": {
+                              "fields": [
+                                {
+                                  "layout": {
+                                    "cell": {
+                                      "key": "0x0100000001000000000000000000000000000000000000000000000000000000",
+                                      "ty": 1
+                                    }
+                                  },
+                                  "name": "len"
+                                },
+                                {
+                                  "layout": {
+                                    "array": {
+                                      "cellsPerElem": 1,
+                                      "layout": {
+                                        "cell": {
+                                          "key": "0x0100000002000000000000000000000000000000000000000000000000000000",
+                                          "ty": 6
+                                        }
+                                      },
+                                      "len": 4294967295,
+                                      "offset": "0x0200000001000000000000000000000000000000000000000000000000000000"
+                                    }
+                                  },
+                                  "name": "elems"
+                                }
+                              ]
+                            }
+                          },
+                          "name": "entries"
+                        }
+                      ]
+                    }
+                  },
+                  "name": "keys"
+                },
+                {
+                  "layout": {
+                    "hash": {
+                      "layout": {
+                        "cell": {
+                          "key": "0x0200000002000000000000000000000000000000000000000000000000000000",
+                          "ty": 8
+                        }
+                      },
+                      "offset": "0x0100000002000000000000000000000000000000000000000000000000000000",
+                      "strategy": {
+                        "hasher": "Blake2x256",
+                        "postfix": "",
+                        "prefix": "0x696e6b20686173686d6170"
+                      }
+                    }
+                  },
+                  "name": "values"
+                }
+              ]
+            }
+          },
+          "name": "players"
+        },
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "struct": {
+                      "fields": [
+                        {
+                          "layout": {
+                            "cell": {
+                              "key": "0x0200000002000000000000000000000000000000000000000000000000000000",
+                              "ty": 5
+                            }
+                          },
+                          "name": "header"
+                        },
+                        {
+                          "layout": {
+                            "struct": {
+                              "fields": [
+                                {
+                                  "layout": {
+                                    "cell": {
+                                      "key": "0x0300000002000000000000000000000000000000000000000000000000000000",
+                                      "ty": 1
+                                    }
+                                  },
+                                  "name": "len"
+                                },
+                                {
+                                  "layout": {
+                                    "array": {
+                                      "cellsPerElem": 1,
+                                      "layout": {
+                                        "cell": {
+                                          "key": "0x0300000003000000000000000000000000000000000000000000000000000000",
+                                          "ty": 10
+                                        }
+                                      },
+                                      "len": 4294967295,
+                                      "offset": "0x0400000002000000000000000000000000000000000000000000000000000000"
+                                    }
+                                  },
+                                  "name": "elems"
+                                }
+                              ]
+                            }
+                          },
+                          "name": "entries"
+                        }
+                      ]
+                    }
+                  },
+                  "name": "keys"
+                },
+                {
+                  "layout": {
+                    "hash": {
+                      "layout": {
+                        "cell": {
+                          "key": "0x0400000003000000000000000000000000000000000000000000000000000000",
+                          "ty": 12
+                        }
+                      },
+                      "offset": "0x0300000003000000000000000000000000000000000000000000000000000000",
+                      "strategy": {
+                        "hasher": "Blake2x256",
+                        "postfix": "",
+                        "prefix": "0x696e6b20686173686d6170"
+                      }
+                    }
+                  },
+                  "name": "values"
+                }
+              ]
+            }
+          },
+          "name": "commanders"
+        }
+      ]
+    }
+  },
+  "types": [
+    {
+      "def": {
+        "primitive": "u32"
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "type": 3,
+              "typeName": "[u8; 32]"
+            }
+          ]
+        }
+      },
+      "path": [
+        "ink_env",
+        "types",
+        "AccountId"
+      ]
+    },
+    {
+      "def": {
+        "array": {
+          "len": 32,
+          "type": 4
+        }
+      }
+    },
+    {
+      "def": {
+        "primitive": "u8"
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "last_vacant",
+              "type": 1,
+              "typeName": "Index"
+            },
+            {
+              "name": "len",
+              "type": 1,
+              "typeName": "u32"
+            },
+            {
+              "name": "len_entries",
+              "type": 1,
+              "typeName": "u32"
+            }
+          ]
+        }
+      },
+      "path": [
+        "ink_storage",
+        "collections",
+        "stash",
+        "Header"
+      ]
+    },
+    {
+      "def": {
+        "variant": {
+          "variants": [
+            {
+              "fields": [
+                {
+                  "type": 7,
+                  "typeName": "VacantEntry"
+                }
+              ],
+              "name": "Vacant"
+            },
+            {
+              "fields": [
+                {
+                  "type": 2,
+                  "typeName": "T"
+                }
+              ],
+              "name": "Occupied"
+            }
+          ]
+        }
+      },
+      "params": [
+        2
+      ],
+      "path": [
+        "ink_storage",
+        "collections",
+        "stash",
+        "Entry"
+      ]
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "next",
+              "type": 1,
+              "typeName": "Index"
+            },
+            {
+              "name": "prev",
+              "type": 1,
+              "typeName": "Index"
+            }
+          ]
+        }
+      },
+      "path": [
+        "ink_storage",
+        "collections",
+        "stash",
+        "VacantEntry"
+      ]
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "value",
+              "type": 9,
+              "typeName": "V"
+            },
+            {
+              "name": "key_index",
+              "type": 1,
+              "typeName": "KeyIndex"
+            }
+          ]
+        }
+      },
+      "params": [
+        9
+      ],
+      "path": [
+        "ink_storage",
+        "collections",
+        "hashmap",
+        "ValueEntry"
+      ]
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "ranked_wins",
+              "type": 1,
+              "typeName": "u32"
+            },
+            {
+              "name": "ranked_losses",
+              "type": 1,
+              "typeName": "u32"
+            }
+          ]
+        }
+      },
+      "path": [
+        "newomegastorage",
+        "newomegastorage",
+        "PlayerData"
+      ]
+    },
+    {
+      "def": {
+        "variant": {
+          "variants": [
+            {
+              "fields": [
+                {
+                  "type": 7,
+                  "typeName": "VacantEntry"
+                }
+              ],
+              "name": "Vacant"
+            },
+            {
+              "fields": [
+                {
+                  "type": 11,
+                  "typeName": "T"
+                }
+              ],
+              "name": "Occupied"
+            }
+          ]
+        }
+      },
+      "params": [
+        11
+      ],
+      "path": [
+        "ink_storage",
+        "collections",
+        "stash",
+        "Entry"
+      ]
+    },
+    {
+      "def": {
+        "tuple": [
+          2,
+          4
+        ]
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "value",
+              "type": 13,
+              "typeName": "V"
+            },
+            {
+              "name": "key_index",
+              "type": 1,
+              "typeName": "KeyIndex"
+            }
+          ]
+        }
+      },
+      "params": [
+        13
+      ],
+      "path": [
+        "ink_storage",
+        "collections",
+        "hashmap",
+        "ValueEntry"
+      ]
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "xp",
+              "type": 1,
+              "typeName": "u32"
+            }
+          ]
+        }
+      },
+      "path": [
+        "newomegastorage",
+        "newomegastorage",
+        "CommanderData"
+      ]
+    },
+    {
+      "def": {
+        "sequence": {
+          "type": 15
+        }
+      }
+    },
+    {
+      "def": {
+        "tuple": [
+          4,
+          13
+        ]
+      }
+    },
+    {
+      "def": {
+        "primitive": "bool"
+      }
+    },
+    {
+      "def": {
+        "sequence": {
+          "type": 18
+        }
+      }
+    },
+    {
+      "def": {
+        "tuple": [
+          2,
+          9
+        ]
+      }
+    }
+  ]
+}

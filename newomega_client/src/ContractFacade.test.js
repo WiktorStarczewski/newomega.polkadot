@@ -13,15 +13,15 @@ jest.setTimeout(50000);
 // technique working is deploying contracts manually.
 // When Polkadot.js sort their stuff out, this can be reenabled.
 
-// const { Deployer } = require('./facades/Deployer');
-// test('Deploy', async () => {
-//     const deployer = new Deployer();
-//     await deployer.initialize();
+const { Deployer } = require('./facades/Deployer');
+test('Deploy', async () => {
+    const deployer = new Deployer();
+    await deployer.initialize();
 
-//     return deployer.deployDelegator().then((contract) => {
-//         expect(contract).toBeDefined();
-//     });
-// });
+    return deployer.deployDelegator().then((contract) => {
+        expect(contract).toBeDefined();
+    });
+});
 
 test('Initialize', async () => {
     const facade = new ContractFacade();

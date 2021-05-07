@@ -1,0 +1,424 @@
+{
+  "metadataVersion": "0.1.0",
+  "source": {
+    "hash": "0x4d7dab79fcc07b2d7fd63f51573f1757a935276c4802506f6c50b6a33df89796",
+    "language": "ink! 3.0.0-rc3",
+    "compiler": "rustc 1.52.0-nightly"
+  },
+  "contract": {
+    "name": "newomega",
+    "version": "1.0.0",
+    "authors": [
+      "Wiktor Starczewski <celrisen@gmail.com>"
+    ]
+  },
+  "spec": {
+    "constructors": [
+      {
+        "args": [],
+        "docs": [],
+        "name": [
+          "new"
+        ],
+        "selector": "0x9bae9d5e"
+      },
+      {
+        "args": [],
+        "docs": [],
+        "name": [
+          "default"
+        ],
+        "selector": "0xed4b9d1b"
+      }
+    ],
+    "docs": [
+      " This contract has no storage, and all its methods are pure (stateless).",
+      " It is able to simulate fights, given a set of input parameters,",
+      " for which it always gives a deterministic result.",
+      " This implies, that the exact fight (moves of the players), can be always",
+      " regenerated provided the same set of input parameters (fleet selection).",
+      " In fact, it is possible not to store (and return) the fight at all,",
+      " only its result, via a boolean flag.",
+      " This is used in order to save cost - precise fight generation can be recreated using (free)",
+      " RPC calls, not paid transactions."
+    ],
+    "events": [],
+    "messages": [
+      {
+        "args": [
+          {
+            "name": "seed",
+            "type": {
+              "displayName": [
+                "u64"
+              ],
+              "type": 1
+            }
+          },
+          {
+            "name": "log_moves",
+            "type": {
+              "displayName": [
+                "bool"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "ships",
+            "type": {
+              "displayName": [
+                "Vec"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "name": "selection_lhs",
+            "type": {
+              "displayName": [],
+              "type": 7
+            }
+          },
+          {
+            "name": "selection_rhs",
+            "type": {
+              "displayName": [],
+              "type": 7
+            }
+          },
+          {
+            "name": "variants_lhs",
+            "type": {
+              "displayName": [],
+              "type": 7
+            }
+          },
+          {
+            "name": "variants_rhs",
+            "type": {
+              "displayName": [],
+              "type": 7
+            }
+          },
+          {
+            "name": "commander_lhs",
+            "type": {
+              "displayName": [
+                "u8"
+              ],
+              "type": 6
+            }
+          },
+          {
+            "name": "commander_rhs",
+            "type": {
+              "displayName": [
+                "u8"
+              ],
+              "type": 6
+            }
+          }
+        ],
+        "docs": [
+          " Calculates a fight.",
+          "",
+          " # Arguments",
+          "",
+          " * `seed` - Seed used to generate randomness",
+          " * `log_moves` - Whether to return a detailed fight log",
+          " * `ships` - A Vec that holds the definiton of all the ships",
+          " * `selection_lhs` - Attacker fleet composition (array with ship quantities)",
+          " * `selection_rhs` - Defender fleet composition (array with ship quantities)",
+          " * `variants_lhs` - An array that holds variants of the attacker fleet",
+          " * `variants_rhs` - An array that holds variants of the defender fleet",
+          " * `commander_lhs` - The attacker commander",
+          " * `commander_rhs` - The defender commander",
+          "",
+          " # Returns",
+          "",
+          " * `result` - A FightResult structure containing the result",
+          " * `moves_lhs` - Logged moves of the attacker, if requested. None if not.",
+          " * `moves_rhs` - Logged moves of the defender, if requested. None if not.",
+          "",
+          " # Algorithm rules:",
+          "     1. A fight is divided into rounds.",
+          "     2. Each round, ships perform moves in turns, starting from smallest ships.",
+          "     3. In each round, the same type of ship, of both the attacker and defender,",
+          "        attacks at the same time.",
+          "     4. Ships can move, shoot, or both, depending on their Range and Speed.",
+          "     5. The winner is declared when one player is dead, or when the fight is still not finished",
+          "        after maximum number of rounds."
+        ],
+        "mutates": false,
+        "name": [
+          "fight"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [],
+          "type": 8
+        },
+        "selector": "0xa372d04c"
+      }
+    ]
+  },
+  "storage": {
+    "struct": {
+      "fields": []
+    }
+  },
+  "types": [
+    {
+      "def": {
+        "primitive": "u64"
+      }
+    },
+    {
+      "def": {
+        "primitive": "bool"
+      }
+    },
+    {
+      "def": {
+        "sequence": {
+          "type": 4
+        }
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "cp",
+              "type": 5,
+              "typeName": "u16"
+            },
+            {
+              "name": "hp",
+              "type": 5,
+              "typeName": "u16"
+            },
+            {
+              "name": "attack_base",
+              "type": 5,
+              "typeName": "u16"
+            },
+            {
+              "name": "attack_variable",
+              "type": 5,
+              "typeName": "u16"
+            },
+            {
+              "name": "defence",
+              "type": 5,
+              "typeName": "u16"
+            },
+            {
+              "name": "speed",
+              "type": 6,
+              "typeName": "u8"
+            },
+            {
+              "name": "range",
+              "type": 6,
+              "typeName": "u8"
+            }
+          ]
+        }
+      },
+      "path": [
+        "newomega",
+        "newomega",
+        "Ship"
+      ]
+    },
+    {
+      "def": {
+        "primitive": "u16"
+      }
+    },
+    {
+      "def": {
+        "primitive": "u8"
+      }
+    },
+    {
+      "def": {
+        "array": {
+          "len": 4,
+          "type": 6
+        }
+      }
+    },
+    {
+      "def": {
+        "tuple": [
+          9,
+          10,
+          10
+        ]
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "selection_lhs",
+              "type": 7,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "selection_rhs",
+              "type": 7,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "variants_lhs",
+              "type": 7,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "variants_rhs",
+              "type": 7,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "commander_lhs",
+              "type": 6,
+              "typeName": "u8"
+            },
+            {
+              "name": "commander_rhs",
+              "type": 6,
+              "typeName": "u8"
+            },
+            {
+              "name": "lhs_dead",
+              "type": 2,
+              "typeName": "bool"
+            },
+            {
+              "name": "rhs_dead",
+              "type": 2,
+              "typeName": "bool"
+            },
+            {
+              "name": "rounds",
+              "type": 6,
+              "typeName": "u8"
+            },
+            {
+              "name": "seed",
+              "type": 1,
+              "typeName": "u64"
+            },
+            {
+              "name": "ships_lost_lhs",
+              "type": 7,
+              "typeName": "[u8; MAX_SHIPS]"
+            },
+            {
+              "name": "ships_lost_rhs",
+              "type": 7,
+              "typeName": "[u8; MAX_SHIPS]"
+            }
+          ]
+        }
+      },
+      "path": [
+        "newomega",
+        "newomega",
+        "FightResult"
+      ]
+    },
+    {
+      "def": {
+        "variant": {
+          "variants": [
+            {
+              "name": "None"
+            },
+            {
+              "fields": [
+                {
+                  "type": 11,
+                  "typeName": "T"
+                }
+              ],
+              "name": "Some"
+            }
+          ]
+        }
+      },
+      "params": [
+        11
+      ],
+      "path": [
+        "Option"
+      ]
+    },
+    {
+      "def": {
+        "sequence": {
+          "type": 12
+        }
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "move_type",
+              "type": 6,
+              "typeName": "u8"
+            },
+            {
+              "name": "round",
+              "type": 6,
+              "typeName": "u8"
+            },
+            {
+              "name": "source",
+              "type": 6,
+              "typeName": "u8"
+            },
+            {
+              "name": "target",
+              "type": 6,
+              "typeName": "u8"
+            },
+            {
+              "name": "target_position",
+              "type": 13,
+              "typeName": "i16"
+            },
+            {
+              "name": "damage",
+              "type": 14,
+              "typeName": "u32"
+            }
+          ]
+        }
+      },
+      "path": [
+        "newomega",
+        "newomega",
+        "Move"
+      ]
+    },
+    {
+      "def": {
+        "primitive": "i16"
+      }
+    },
+    {
+      "def": {
+        "primitive": "u32"
+      }
+    }
+  ]
+}

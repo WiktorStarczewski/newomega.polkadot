@@ -41,8 +41,8 @@ export class ContractFacade {
         const wsProvider = new WsProvider(RPC_PROVIDER);
         const api = ApiPromise.create({
             provider: wsProvider,
-            types: { "Address": "MultiAddress", "LookupSource": "MultiAddress" },
-            //types: { "Address": "AccountId", "LookupSource": "AccountId" },
+            // types: { "Address": "MultiAddress", "LookupSource": "MultiAddress" },
+            types: { "Address": "AccountId", "LookupSource": "AccountId" },
         });
         await api.isReady;
         return api;

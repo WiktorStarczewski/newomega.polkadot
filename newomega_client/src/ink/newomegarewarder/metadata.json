@@ -1,0 +1,164 @@
+{
+  "metadataVersion": "0.1.0",
+  "source": {
+    "hash": "0x96c7b2ed2583f4d3f30a3ca513be38d578e5ff2bba6acc79ee4d3a74cd16aec2",
+    "language": "ink! 3.0.0-rc3",
+    "compiler": "rustc 1.52.0-nightly"
+  },
+  "contract": {
+    "name": "newomegarewarder",
+    "version": "1.0.0",
+    "authors": [
+      "Wiktor Starczewski <celrisen@gmail.com>"
+    ]
+  },
+  "spec": {
+    "constructors": [
+      {
+        "args": [
+          {
+            "name": "new_omega_storage",
+            "type": {
+              "displayName": [
+                "NewOmegaStorage"
+              ],
+              "type": 4
+            }
+          }
+        ],
+        "docs": [],
+        "name": [
+          "new"
+        ],
+        "selector": "0x9bae9d5e"
+      }
+    ],
+    "docs": [
+      " A simple module hands out rewards for a player in the form of loot crates.",
+      " The crates are buyable, but this contract does not deal with payments, instead",
+      " leaving that to the Delegator and focusing on the crate generation, and Storage updates."
+    ],
+    "events": [],
+    "messages": [
+      {
+        "args": [
+          {
+            "name": "caller",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 1
+            }
+          }
+        ],
+        "docs": [
+          " Generates a loot crate for the player.",
+          "",
+          " # Arguments",
+          "",
+          " * `caller` - Account id of the player to generate the crate for",
+          "",
+          " # Returns",
+          "",
+          " * `commander` - Id of the commander received from the loot crate"
+        ],
+        "mutates": true,
+        "name": [
+          "buy_loot_crate"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u8"
+          ],
+          "type": 3
+        },
+        "selector": "0xd2ddb4d5"
+      }
+    ]
+  },
+  "storage": {
+    "struct": {
+      "fields": [
+        {
+          "layout": {
+            "cell": {
+              "key": "0x0000000000000000000000000000000000000000000000000000000000000000",
+              "ty": 1
+            }
+          },
+          "name": "owner"
+        },
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "cell": {
+                      "key": "0x0100000000000000000000000000000000000000000000000000000000000000",
+                      "ty": 1
+                    }
+                  },
+                  "name": "account_id"
+                }
+              ]
+            }
+          },
+          "name": "new_omega_storage"
+        }
+      ]
+    }
+  },
+  "types": [
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "type": 2,
+              "typeName": "[u8; 32]"
+            }
+          ]
+        }
+      },
+      "path": [
+        "ink_env",
+        "types",
+        "AccountId"
+      ]
+    },
+    {
+      "def": {
+        "array": {
+          "len": 32,
+          "type": 3
+        }
+      }
+    },
+    {
+      "def": {
+        "primitive": "u8"
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "account_id",
+              "type": 1,
+              "typeName": "AccountId"
+            }
+          ]
+        }
+      },
+      "path": [
+        "newomegastorage",
+        "newomegastorage",
+        "NewOmegaStorage"
+      ]
+    }
+  ]
+}
