@@ -16,21 +16,21 @@ export class ContractFacade {
      * Initializes the Facade with a mnemonic.
      * Instantiates a Keyring, exposes Alice account, and loads the contract.
      */
-    async initialize(mnemonic) {
+    async initialize(mnemonic, delegatorAddress) {
         this.api = await this.getApi();
         this.keyring = new Keyring({ type: 'sr25519' });
         this.alice = this.keyring.addFromUri(mnemonic, { name: 'NewOmega' });
         this.contracts = {
-            delegator: this.getDelegator(),
+            delegator: this.getDelegator(delegatorAddress),
         };
     }
 
     /**
      * Returns the main Delegator contract promise.
      */
-    getDelegator() {
+    getDelegator(delegatorAddress) {
         return new ContractPromise(this.api,
-            delegatorAbi, decodeAddress(config.delegator_address));
+            delegatorAbi, decodeAddress(delegatorAddress || config.delegator_address));
     }
 
     /**
@@ -41,8 +41,8 @@ export class ContractFacade {
         const wsProvider = new WsProvider(RPC_PROVIDER);
         const api = ApiPromise.create({
             provider: wsProvider,
-            // types: { "Address": "MultiAddress", "LookupSource": "MultiAddress" },
-            types: { "Address": "AccountId", "LookupSource": "AccountId" },
+            types: { "Address": "MultiAddress", "LookupSource": "MultiAddress" },
+            //types: { "Address": "AccountId", "LookupSource": "AccountId" },
         });
         await api.isReady;
         return api;

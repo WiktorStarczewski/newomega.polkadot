@@ -8,10 +8,7 @@ const { ContractFacade } = require('./facades/ContractFacade');
 
 jest.setTimeout(50000);
 
-// Note, at the time deployment of contracts is undergoing
-// significant changes in Polkadot. Presently, the only
-// technique working is deploying contracts manually.
-// When Polkadot.js sort their stuff out, this can be reenabled.
+let delegatorAddress;
 
 const { Deployer } = require('./facades/Deployer');
 test('Deploy', async () => {
@@ -19,13 +16,15 @@ test('Deploy', async () => {
     await deployer.initialize();
 
     return deployer.deployDelegator().then((contract) => {
+        console.log('Delegator address ', contract.address.toHuman());
+        delegatorAddress = contract.address.toHuman();
         expect(contract).toBeDefined();
     });
 });
 
 test('Initialize', async () => {
     const facade = new ContractFacade();
-    await facade.initialize('//Alice');
+    await facade.initialize('//Alice', delegatorAddress);
 
     expect(facade.api).toBeDefined();
     expect(facade.keyring).toBeDefined();
@@ -36,7 +35,7 @@ test('Initialize', async () => {
 test('RegisterDefence', async () => {
     // Alice
     const facadeAlice = new ContractFacade();
-    await facadeAlice.initialize('//Alice');
+    await facadeAlice.initialize('//Alice', delegatorAddress);
 
     const selection = [10, 27, 43, 15];
     const variants = [0, 1, 0, 1];
@@ -54,7 +53,7 @@ test('RegisterDefence', async () => {
 
     // Bob
     const facadeBob = new ContractFacade();
-    await facadeBob.initialize('//Bob');
+    await facadeBob.initialize('//Bob', delegatorAddress);
 
     const selectionBob = [23, 9, 9, 5];
     const variantsBob = [1, 0, 1, 1];
@@ -77,10 +76,10 @@ test('RegisterDefence', async () => {
 
 test('Attack', async () => {
     const facadeAlice = new ContractFacade();
-    await facadeAlice.initialize('//Alice');
+    await facadeAlice.initialize('//Alice', delegatorAddress);
 
     const facadeBob = new ContractFacade();
-    await facadeBob.initialize('//Bob');
+    await facadeBob.initialize('//Bob', delegatorAddress);
 
     const leaderboardPre = await facadeAlice.getLeaderboard();
     const alicePre = _.findWhere(leaderboardPre, {
@@ -122,7 +121,7 @@ test('Attack', async () => {
 
 test('Replay', async () => {
     const facade = new ContractFacade();
-    await facade.initialize('//Alice');
+    await facade.initialize('//Alice', delegatorAddress);
 
     const seed = 1337;
     const selectionLhs = [3, 3, 3, 3];
